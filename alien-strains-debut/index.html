@@ -1,0 +1,616 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+
+<title>Alien Strains Mix Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@500&display=swap">
+<style>
+/* Black Cactus house style: the studio's dark site look. Logotype top left, artist name big in Bebas, one card per track like a channel strip. Green = progress and play, gold = timestamps and notes. */
+:root{
+  --black:#0c0c0c; --bg:#0c0c0c; --panel:#141414; --panel-2:#1c1c1c; --line:#262626;
+  --fg:#f2f0ea; --muted:#9a978f; --green:#2d6a4f; --green-light:#40916c; --gold:#c9a84c; --gold-soft:rgba(201,168,76,.12);
+  --accent:var(--gold); --accent-soft:var(--gold-soft); --wave:#3a3a37; --done:#40916c; --done-soft:rgba(64,145,108,.14); --danger:#e57368;
+  --display:"Bebas Neue","Arial Narrow",Impact,sans-serif;
+  --body:"DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"DM Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:3px; color-scheme:dark;
+}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.5;font-size:15px;padding-inline:clamp(16px,4vw,48px);padding-block:20px 72px}
+.wrap{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.bar img{height:44px;width:auto;display:block}
+.bar span{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;padding-top:18px}
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--green-light)}
+h1{margin:6px 0 0;font-family:var(--display);font-weight:400;font-size:clamp(3rem,9vw,6rem);line-height:.88;letter-spacing:.01em;text-wrap:balance}
+h1 em{display:block;font-style:normal;color:var(--gold);font-size:.5em;line-height:1.1;margin-top:6px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel-2);padding:9px 16px;border-radius:var(--r);font-weight:500;text-decoration:none;white-space:nowrap;font-size:.9rem}
+.btn:hover{border-color:var(--gold)}
+a.btn{color:var(--fg)}
+a.btn.primary,a.btn.green{color:#16130a}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:#16130a;font-weight:700}
+.btn.small{padding:4px 10px;font-size:.8rem}
+.btn.ok{background:var(--green-light);border-color:var(--green-light);color:#06120c;font-weight:700}
+.help{color:var(--muted);margin:0;max-width:60ch}
+.help b{color:var(--fg);font-weight:500}
+.you{display:flex;gap:10px;align-items:center;font-size:.85rem;color:var(--muted);flex-wrap:wrap}
+.you input{width:14em}
+
+.track{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:var(--r);padding:18px 20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.thead{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline}
+.thead .n{font-family:var(--display);font-size:2.2rem;line-height:1;color:var(--green-light);font-variant-numeric:tabular-nums}
+.thead h2{margin:0;font-family:var(--display);font-weight:400;font-size:2.2rem;line-height:1;letter-spacing:.02em}
+.thead .sp{flex:1}
+.prog{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.segs{display:flex;gap:3px}
+.segs i{display:block;width:24px;height:6px;background:var(--panel-2);border:1px solid var(--line)}
+.segs i.d{background:var(--green-light);border-color:var(--green-light)}
+.segs i.c{background:transparent;border:1px solid var(--gold)}
+.segs.so i{background:var(--gold);border-color:var(--gold)}
+.prog span{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.prog span b{color:var(--fg);font-weight:500}
+
+.player{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center}
+.play{width:52px;height:52px;border-radius:50%;border:0;background:var(--green-light);color:#06120c;display:grid;place-items:center}
+.play:hover{background:var(--gold)}
+.play svg{width:18px;height:18px;fill:currentColor}
+.wavebox{position:relative;min-width:0}
+canvas.wave{display:block;width:100%;height:76px;cursor:crosshair;background:var(--black)}
+.marks{position:relative;height:14px;margin-top:4px}
+.mk{position:absolute;top:0;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;background:var(--gold);border:2px solid var(--panel);padding:0}
+.mk.r{background:var(--muted)}
+.times{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.74rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.vrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.85rem;color:var(--muted)}
+select,input,textarea{background:var(--black);border:1px solid var(--line);border-radius:var(--r);padding:8px 10px;font-size:.92rem;box-sizing:border-box}
+.compose{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start}
+.compose .at{font-family:var(--mono);font-size:.85rem;padding:9px 10px;border:1px solid var(--gold);border-radius:var(--r);color:var(--gold);background:var(--gold-soft);font-variant-numeric:tabular-nums;white-space:nowrap}
+.compose textarea{width:100%;min-height:44px;resize:vertical}
+.notes{display:flex;flex-direction:column}
+.note{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;padding:10px 0;border-top:1px solid var(--line)}
+.note .t{all:unset;cursor:pointer;font-family:var(--mono);font-size:.82rem;color:var(--gold);font-variant-numeric:tabular-nums;padding-top:2px}
+.note .t:hover{text-decoration:underline}
+.note p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;min-width:0}
+.note small{display:block;color:var(--muted);font-size:.74rem;font-family:var(--mono);margin-top:2px}
+.note.res p{color:var(--muted);text-decoration:line-through}
+.note .tick{font-size:.76rem;white-space:nowrap;display:flex;gap:4px;align-items:center;color:var(--muted)}
+.muted{color:var(--muted);font-size:.88rem;margin:0}
+.how{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);padding:16px 18px}
+.how h2{margin:0 0 8px;font-family:var(--display);font-weight:400;font-size:1.7rem;letter-spacing:.03em}
+.how ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:10px}
+.how li{color:var(--muted)} .how li b{color:var(--fg)}
+.how .you{margin-top:8px} .how .you input{width:100%;max-width:22em;font-size:1rem;padding:12px}
+.atlbl{grid-column:1/-1;font-size:.9rem;color:var(--muted)}
+.atlbl .at{display:inline-block;margin:0 2px} .atlbl small{font-size:.8rem}
+.compose{grid-template-columns:1fr auto!important}
+.btn.save{background:var(--green-light);border-color:var(--green-light);color:#06120c;min-height:46px}
+.rm{all:unset;cursor:pointer;font-size:.8rem;color:var(--muted);padding:4px 6px}
+.rm:hover{color:var(--danger)}
+.approve{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:.85rem;color:var(--muted);padding-top:10px;border-top:1px dashed var(--line)}
+.lnk{all:unset;cursor:pointer;color:var(--green-light);text-decoration:underline;font-weight:600}
+.lnk.mute{color:var(--muted)}
+.lnk:focus-visible{outline:2px solid var(--gold)}
+.sendtrack{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding:14px;border:2px solid var(--gold);background:var(--gold-soft);border-radius:var(--r)}
+.sendtrack>div{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 14em}
+.sendtrack b{color:var(--gold);font-size:1rem}
+.sendtrack span{color:var(--fg);font-size:.88rem}
+.sendtrack .btn{min-height:48px;font-size:1.05rem;padding:10px 20px}
+@media (max-width:560px){ .sendtrack .btn{width:100%;justify-content:center} }
+.sendbar{position:fixed;left:0;right:0;bottom:0;z-index:9;display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:#141414;border-top:2px solid var(--gold);box-shadow:0 -6px 24px rgba(0,0,0,.6)}
+.sendbar span{font-weight:600;color:var(--fg);font-size:.95rem}
+.sendbar .btn{min-height:46px;font-size:1rem}
+.localp.flash{box-shadow:0 0 0 3px var(--gold)}
+.localp{position:static!important}
+.play.loading{background:var(--panel-2)}
+.spin{width:18px;height:18px;border:3px solid var(--muted);border-top-color:var(--gold);border-radius:50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+body{padding-bottom:110px}
+@media (max-width:560px){ .compose{grid-template-columns:1fr!important} .btn.save{width:100%} .player{grid-template-columns:auto 1fr} canvas.wave{height:84px} .mk{width:16px;height:16px} .sendbar span{font-size:.85rem} .btn{min-height:44px} .how h2{font-size:1.5rem} }
+.signoff{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--green);background:var(--done-soft)}
+.signoff p{margin:0;font-size:.9rem}
+.empty{background:var(--panel);border:1px dashed var(--line);padding:28px}
+.empty h2{margin:0 0 6px;font-family:var(--display);font-weight:400;font-size:2rem}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--gold);color:#16130a;font-weight:500;padding:10px 16px;border-radius:var(--r);font-size:.9rem;z-index:10;max-width:calc(100vw - 32px)}
+[hidden]{display:none!important}
+.bal{border:1px solid var(--line);background:var(--panel);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.bnums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px}
+.bnums div{background:var(--panel-2);padding:8px 12px}
+.bnums span{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.bnums b{font-family:var(--display);font-weight:400;font-size:1.8rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.bnums .owe b{color:var(--gold)} .bnums .ok b{color:var(--green-light)}
+.bpay{margin:0;color:var(--muted);font-size:.9rem}
+.bpay b{color:var(--fg);font-weight:500;user-select:all}
+.basof{color:var(--muted);font-family:var(--mono);font-size:.7rem}
+.bank{border:1px solid var(--line);background:var(--black);padding:4px 14px 8px;max-width:520px}
+.bank-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:10px 0 6px;border-bottom:1px solid var(--line)}
+.bank-h span{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.bank-h small{color:var(--muted);font-size:.8rem}
+.brow{display:grid;grid-template-columns:7.5em 1fr auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.brow:last-child{border-bottom:0}
+.brow span{color:var(--muted);font-size:.85rem}
+.brow b{font-family:var(--mono);font-weight:500;font-size:1rem;letter-spacing:.04em;font-variant-numeric:tabular-nums;user-select:all;overflow-wrap:anywhere}
+.cp{all:unset;cursor:pointer;font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);padding:4px 8px;border:1px solid var(--line)}
+.cp:hover{border-color:var(--gold)}
+.cp:focus-visible{outline:2px solid var(--gold)}
+.hours{margin:0;color:var(--muted)}
+.hours .avg{color:var(--gold)}
+.hours b{font-family:var(--display);font-weight:400;font-size:1.6rem;color:var(--green-light);letter-spacing:.02em}
+.items{display:flex;flex-direction:column}
+.item{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:baseline;padding:8px 0;border-top:1px solid var(--line)}
+.item .iw{min-width:0}
+.item s{color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums}
+.item b{font-weight:500;font-variant-numeric:tabular-nums}
+.item b.onus{color:var(--gold);font-family:var(--mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}
+.saved{margin:0;padding:10px 12px;border:1px solid var(--gold);background:var(--gold-soft);color:var(--fg)}
+.saved b{color:var(--gold)}
+.dlbox{display:flex;flex-direction:column;gap:10px;padding-top:4px}
+.early{display:flex;flex-wrap:wrap;gap:8px}
+.nexts{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;border:1px solid var(--green);border-left:3px solid var(--green-light);background:var(--done-soft);padding:14px 16px}
+.nexts>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.nexts .nk{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--green-light)}
+.nexts .nd{font-family:var(--display);font-weight:400;font-size:1.9rem;line-height:1.05;letter-spacing:.02em}
+.nexts .nt{color:var(--muted)}
+.bhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.bhead b{font-family:var(--display);font-weight:400;font-size:1.5rem;letter-spacing:.02em}
+.thanks{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px;margin-top:8px}
+.thanks section{background:var(--panel);border:1px solid var(--line);padding:22px;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.thanks section.love{border-color:var(--gold);background:linear-gradient(180deg,var(--gold-soft),transparent 70%),var(--panel)}
+.thanks h2{margin:0;font-family:var(--display);font-weight:400;font-size:2rem;line-height:1;letter-spacing:.02em}
+.thanks p{margin:0;color:var(--muted);max-width:52ch}
+.thanks p b{color:var(--fg);font-weight:500}
+.thanks .sig{font-family:var(--mono);font-size:.78rem;color:var(--gold);letter-spacing:.06em}
+.thanks .row2{display:flex;flex-wrap:wrap;gap:8px}
+.btn.green{background:var(--green-light);border-color:var(--green-light);color:#06120c;font-weight:700}
+.ro .needs-write{display:none!important}
+.localp{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;background:var(--panel-2);border:1px solid var(--gold);border-radius:var(--r);padding:14px 16px;position:sticky;top:env(safe-area-inset-top,0px);z-index:2}
+.localp b{font-family:var(--display);font-weight:400;font-size:1.5rem;letter-spacing:.02em}
+.localp p{margin:0}
+.localp pre{flex-basis:100%;margin:0;white-space:pre-wrap;font-family:var(--mono);font-size:.8rem;background:var(--black);border:1px solid var(--line);padding:10px;max-height:40vh;overflow:auto;user-select:all}
+.btn:disabled,.btn[aria-disabled="true"]{opacity:.45;cursor:default;pointer-events:none}
+.sendrow{display:flex;gap:8px;flex-wrap:wrap}
+.sendhelp{flex-basis:100%}
+.prefer{flex-basis:100%;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:12px}
+.prefer p{margin:0;color:var(--muted);font-size:.9rem}
+.prefer p b{color:var(--fg);font-family:var(--body);font-weight:600;font-size:inherit;letter-spacing:0}
+.sendhelp b{color:var(--gold)}
+footer{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);padding-top:18px;margin-top:10px}
+footer img{height:28px;width:auto}
+footer .addr{flex:1;min-width:14em}
+@media (max-width:560px){ .brow{grid-template-columns:5.5em 1fr auto} .brow b{font-size:.92rem;letter-spacing:0} .bank-h{flex-direction:column;gap:2px} .compose{grid-template-columns:1fr} .thead h2,.thead .n{font-size:1.8rem} .segs i{width:16px} .bar img{height:34px} }
+
+/* Band notes: see what the others said, agree or disagree */
+.note.shared{background:transparent}
+.note .who{color:var(--fg)}
+.rx{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:8px}
+.rx .btn{padding:6px 12px;font-size:.85rem;min-height:36px}
+.rx .btn.on-agree{background:var(--green-light);border-color:var(--green-light);color:#06120c}
+.rx .btn.on-dis{background:var(--danger);border-color:var(--danger);color:#16130a}
+.rx .cnt{font-size:.85rem;color:var(--muted)}
+.rx .cnt b{color:var(--fg);font-weight:600}
+.rx .pend{font-size:.82rem;color:var(--gold)}
+.rxwhy{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;width:100%}
+.rxwhy input{flex:1 1 14em;min-width:0}
+.saidhint{margin:0 0 4px;font-size:.9rem;color:var(--gold)}
+
+/* Legibility boost (AJ request): heavier, bigger, brighter text */
+:root{--muted:#c4c0b6;--line:#333}
+body{font-size:16.5px;font-weight:500;-webkit-font-smoothing:antialiased}
+.help,.muted,.bpay,.prefer p,.note small,.times,.prog span,.eyebrow,.bar span,footer{font-weight:500}
+.btn{font-weight:700}
+.note p,.fx{font-weight:500}
+.thead h2,h1,.thanks h2,.empty h2,.bhead b,.localp b{letter-spacing:.03em}
+.times,.note .t,.compose .at,.prog span,.brow b,.cp,.eyebrow{font-weight:500}
+</style>
+
+<div class="wrap">
+  <div class="bar"><img src="img/logotype.png" alt="Black Cactus Studio"><span>Mix room</span></div>
+  <header class="top">
+    <div>
+      <div class="eyebrow">Your mixes</div>
+      <h1 id="ptitle">Loading</h1>
+    </div>
+    <a class="btn primary" id="dl" href="#" target="_blank" rel="noopener" hidden>Download WAVs ↗</a>
+  </header>
+  <section class="how">
+    <h2>How to leave notes</h2>
+    <ol>
+      <li><b>Put your name in</b> so we know who's talking.<div class="you needs-write"><input id="me" maxlength="40" placeholder="Your name, e.g. Sam (vocals)" aria-label="Your name"></div></li>
+      <li><b>Play a song and tap the waveform</b> where you hear something. You can tap anywhere to jump around.</li>
+      <li><b>Type what you're hearing</b> and tap <b>Save note</b>. Do this as many times as you like.</li>
+      <li><b>Check what the rest of the band said first.</b> If someone's already said it, just tap <b>Agree</b> (or <b>Disagree</b> and say why) instead of writing it again.</li>
+      <li><b>When you're finished, tap the gold "Send my notes" button</b> at the bottom of your screen, then press <b>Submit</b> on the form that opens.</li>
+    </ol>
+  </section>
+  <main id="tracks" style="display:flex;flex-direction:column;gap:18px"></main>
+  <section id="localPanel" class="localp" hidden>
+    <div><b>Send your notes</b><p class="muted" id="localCount"></p></div>
+    <div class="sendrow"><a class="btn primary" id="sendNotes" href="#" target="_blank" rel="noopener" aria-disabled="true">Send my notes to the studio ↗</a></div>
+    <p class="muted sendhelp" id="sendHelp" hidden>A Google Form opens with your notes filled in. Check them, then press <b>Submit</b>. That's it, they're with us.</p>
+    <div class="prefer">
+      <p><b>Prefer to message?</b> Send all your notes in one go on WhatsApp, or copy them and paste them wherever you like.</p>
+      <div class="sendrow">
+        <a class="btn green" id="waNotes" href="#" target="_blank" rel="noopener" aria-disabled="true">Send on WhatsApp ↗</a>
+        <button class="btn" id="copyNotes" type="button" disabled>Copy all notes</button>
+      </div>
+    </div>
+    <pre id="notesOut" hidden></pre>
+  </section>
+
+  <section id="nextSess" class="nexts" hidden></section>
+  <section id="balance" class="bal" hidden></section>
+  <div class="thanks">
+    <section class="love">
+      <h2>Thank you</h2>
+      <p>It means the world to me to work on your music together. If you get a spare minute, a quick Google review really helps a small studio like ours get found by other bands.</p>
+      <a class="btn primary" href="https://www.google.com/maps/search/?api=1&amp;query=Black+Cactus+Studio+Great+Bromley" target="_blank" rel="noopener" id="reviewLink">Leave us a Google review ↗</a>
+      <span class="sig">AJ, Black Cactus Studio</span>
+    </section>
+    <section>
+      <h2>Book your next rehearsal</h2>
+      <p>Get the songs tight before the next session. Three rooms, backline and PA included. <b>By appointment only.</b></p>
+      <div class="row2">
+        <a class="btn green" href="https://wa.me/447880354653?text=Hi%20AJ%2C%20I%27d%20like%20to%20book%20a%20rehearsal%20at%20Black%20Cactus" target="_blank" rel="noopener">Book on WhatsApp ↗</a>
+        <a class="btn" href="https://blackcactusstudio.co.uk/" target="_blank" rel="noopener">Rehearsal rooms ↗</a>
+      </div>
+      <p>Or call or text AJ on <b>07880 354 653</b></p>
+    </section>
+  </div>
+  <footer><img src="img/mark.png" alt=""><span class="addr">Black Cactus Studio · Unit 6, Hazelwood Estate, Great Bromley, Essex CO7 7FA</span><span>07880 354 653</span><span>info@blackcactusstudio.co.uk</span></footer>
+</div>
+<audio id="audio" preload="none"></audio>
+<script id="seed" type="application/json">{"meta":{"key":"alien-strains-debut","artist":"ALIEN STRAINS","title":"DEBUT ALBUM","driveUrl":"https://drive.google.com/drive/folders/1uMKij-SYkONFGRTPoqp-mvra6OYc37aq","ref":"ALIEN STRAINS","hours":{"recording":28,"post":5},"money":{"items":[{"desc":"Recording, half day (4 hrs) \u00b7 18 Aug","qty":1,"rate":130,"discount":53},{"desc":"Recording, full day (8 hrs) \u00b7 19 Aug","qty":1,"rate":250,"discount":102},{"desc":"Recording, half day (4 hrs) \u00b7 24 Aug","qty":1,"rate":130,"discount":53},{"desc":"Recording, half day (4 hrs) \u00b7 25 Aug","qty":1,"rate":130,"discount":53},{"desc":"Recording, full day (8 hrs) \u00b7 26 Aug","qty":1,"rate":250,"discount":102},{"desc":"Edit, mix & master per track (large, 20-30 stems)","qty":8,"rate":100,"discount":327}],"gross":1690,"discount":690,"charged":1000,"paid":0,"free":0,"owed":1000},"moneyAsOf":"6 Oct","downloadsOpen":false,"nextSession":null},"tracks":[{"id":"as-01-interlude","number":1,"name":"INTERLUDE","stage":1,"versions":[{"id":"v01","label":"Rough 1","order":1,"note":"Pre-synths rough","file":"audio/01-interlude-rough-v01.mp3","date":"6 Oct","duration":110.2,"peaks":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.019,0.032,0.134,0.15,0.134,0.15,0.145,0.171,0.121,0.13,0.14,0.153,0.153,0.142,0.145,0.144,0.13,0.14,0.139,0.14,0.133,0.121,0.134,0.133,0.135,0.132,0.127,0.12,0.127,0.148,0.138,0.13,0.128,0.127,0.138,0.172,0.117,0.131,0.118,0.117,0.129,0.115,0.145,0.133,0.138,0.114,0.145,0.142,0.155,0.172,0.11,0.143,0.164,0.123,0.142,0.113,0.15,0.148,0.135,0.142,0.106,0.116,0.124,0.123,0.12,0.131,0.165,0.106,0.119,0.099,0.116,0.15,0.117,0.129,0.143,0.151,0.135,0.136,0.138,0.132,0.134,0.117,0.15,0.133,0.136,0.146,0.127,0.142,0.148,0.122,0.135,0.137,0.178,0.136,0.164,0.143,0.13,0.147,0.149,0.145,0.132,0.147,0.137,0.112,0.156,0.152,0.136,0.135,0.113,0.111,0.126,0.132,0.146,0.14,0.132,0.129,0.145,0.13,0.151,0.129,0.122,0.143,0.603,0.282,0.312,0.363,0.28,0.522,0.235,0.275,0.27,0.71,0.437,0.295,0.359,0.522,0.448,0.303,0.231,0.255,0.271,0.632,0.314,0.248,0.538,0.421,0.368,0.246,0.283,0.279,0.273,0.825,0.273,0.301,0.366,0.581,0.41,0.413,0.267,0.225,0.292,0.735,0.284,0.276,0.495,0.52,0.511,0.235,0.237,0.289,0.614,0.379,0.291,0.473,0.495,0.325,0.249,0.229,0.287,0.325,0.784,0.307,0.239,0.399,0.611,0.401,0.247,0.259,0.285,0.216,0.674,0.247,0.253,0.255,0.706,0.392,0.542,0.272,0.238,0.261,0.673,0.261,0.308,0.37,0.676,0.32,0.246,0.191,0.211,0.231,0.665,0.237,0.229,0.478,0.406,0.386,0.214,0.226,0.229,0.217,0.646,0.355,0.325,0.334,0.492,0.44,0.29,0.264,0.282,0.302,0.566,0.231,0.256,0.357,0.245,0.547,0.341,0.528,0.253,0.609,0.782,0.353,0.407,0.502,0.489,0.999,0.277,0.274,0.408,0.355,0.883,0.331,0.314,0.491,0.554,0.649,0.423,0.289,0.4,0.318,0.911,0.516,0.35,0.765,0.406,0.602,0.308,0.284,0.315,0.803,0.36,0.701,0.301,0.378,0.361,0.59,0.693,0.659,0.503,0.371,0.24,0.973,0.373,0.39,0.518,0.596,0.585,0.322,0.273,0.555,0.328,0.743,0.369,0.322,0.476,0.497,0.655,0.397,0.29,0.584,0.27,0.8,0.319,0.363,0.455,0.548,0.517,0.295,0.347,0.278,0.469,0.275,0.802,0.256,0.274,0.415,0.629,0.487,0.681,0.407,0.542,0.257,0.798,0.335,0.42,0.578,0.645,0.716,0.278,0.289,0.3,0.531,1.0,0.33,0.314,0.292,0.513,0.551,0.681,0.3,0.293,0.37,0.273,0.814,0.297,0.319,0.479,0.593,0.644,0.579,0.332,0.557,0.309,0.923,0.374,0.324,0.539,0.574,0.386,0.491,0.356,0.697,0.391,0.265,0.635,0.321,0.261,0.298,0.244,0.275,0.261,0.295,0.26,0.279,0.314,0.351,0.328,0.291,0.28,0.26,0.289,0.314,0.288,0.274,0.237,0.234,0.255,0.275,0.258,0.251,0.253,0.214,0.189,0.194,0.18,0.184,0.17,0.2,0.18,0.166,0.144,0.146,0.141,0.144,0.141,0.182,0.155,0.159,0.147,0.149,0.163,0.127,0.153,0.126,0.136,0.16,0.135,0.157,0.152,0.144,0.159,0.128,0.134,0.123,0.132,0.133,0.141,0.131,0.129,0.121,0.133,0.108,0.122,0.132,0.128,0.13,0.143,0.133,0.129,0.15,0.143,0.129,0.127,0.146,0.153,0.129,0.163,0.145,0.117,0.126,0.161,0.138,0.153,0.166,0.12,0.14,0.134,0.137,0.133,0.141,0.147,0.134,0.119,0.13,0.132,0.14,0.126,0.143,0.141,0.136,0.169,0.121,0.144,0.135,0.134,0.148,0.137,0.13,0.108,0.14,0.162,0.152,0.156,0.126,0.12,0.118,0.119,0.112,0.116,0.108,0.099,0.08,0.073,0.078,0.067,0.05,0.047,0.055,0.041,0.037,0.028,0.02,0.02,0.014,0.011,0.007,0.005,0.003,0.002,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]}]},{"id":"as-02-new-terror-reigns","number":2,"name":"NEW TERROR REIGNS","stage":1,"versions":[{"id":"v01","label":"Rough 1","order":1,"note":"Pre-synths rough","file":"audio/02-new-terror-reigns-rough-v01.mp3","date":"6 Oct","duration":320.3,"peaks":[0.0,0.0,0.0,0.0,0.001,0.001,0.0,0.0,0.001,0.01,0.1,0.109,0.115,0.12,0.111,0.097,0.11,0.116,0.129,0.119,0.113,0.118,0.128,0.114,0.117,0.109,0.118,0.134,0.12,0.742,0.745,0.237,0.733,0.779,0.861,0.879,0.192,0.17,0.87,0.488,0.758,0.721,0.778,0.738,0.83,0.29,0.254,0.245,0.872,0.829,0.51,0.559,0.829,0.775,0.497,0.612,0.718,0.885,0.527,0.445,0.66,0.804,0.679,0.652,0.718,0.64,0.768,0.467,0.421,0.486,0.681,1.0,0.721,0.695,0.602,0.732,0.52,0.348,0.554,0.423,0.829,0.749,0.461,0.599,0.869,0.578,0.703,0.587,0.54,0.671,0.704,0.656,0.673,0.623,0.839,0.654,0.66,0.659,0.888,0.625,0.651,0.557,0.634,0.809,0.576,0.476,0.639,0.539,0.67,0.635,0.583,0.631,0.546,0.583,0.646,0.63,0.53,0.638,0.68,0.665,0.627,0.91,0.329,0.272,0.175,0.137,0.12,0.109,0.115,0.113,0.109,0.238,0.246,0.228,0.216,0.26,0.209,0.231,0.507,0.549,0.927,0.592,0.523,0.496,0.958,0.527,0.529,0.686,0.648,0.913,0.556,0.434,0.486,0.951,0.645,0.479,0.612,0.645,0.769,0.969,0.381,0.472,0.394,0.86,0.508,0.688,0.739,0.827,0.563,0.49,0.407,0.448,0.913,0.677,0.618,0.649,0.742,0.994,0.348,0.483,0.411,0.759,0.63,0.637,0.833,0.788,0.667,0.366,0.467,0.436,0.867,0.605,0.574,0.624,1.0,0.593,0.319,0.473,0.615,0.792,0.614,0.801,0.734,0.799,0.591,0.369,0.495,0.456,0.841,0.555,0.611,0.615,0.65,0.634,0.522,0.62,0.355,0.594,0.524,0.617,0.623,0.681,0.593,0.64,0.746,0.682,0.623,0.622,0.609,0.678,0.601,0.584,0.868,0.662,0.709,0.581,0.807,0.64,0.715,0.547,0.624,0.857,0.655,0.601,0.57,0.627,0.744,0.652,0.586,0.605,0.545,0.744,0.521,0.851,0.472,0.991,0.791,0.587,0.935,0.721,0.517,0.596,0.626,0.75,0.729,0.873,0.676,0.549,0.776,0.501,0.511,0.708,0.6,0.707,0.617,0.637,0.666,0.462,0.804,0.587,0.73,0.804,0.809,0.718,0.288,0.716,0.616,0.686,0.612,0.36,0.785,0.556,0.603,0.446,0.319,0.675,0.598,0.629,0.472,0.412,0.641,0.558,0.827,0.5,0.384,0.645,0.588,0.28,0.693,0.526,0.264,0.558,0.622,0.438,0.617,0.656,0.305,0.719,0.554,0.487,0.668,0.686,0.284,0.544,0.467,0.52,0.583,0.646,0.486,0.267,0.71,0.53,0.311,0.737,0.413,0.575,0.249,0.67,0.798,0.764,0.403,0.799,0.586,0.591,0.397,0.32,0.72,0.56,0.49,0.253,0.83,0.535,0.605,0.296,0.761,0.493,0.379,0.571,0.519,0.639,0.624,0.486,0.299,0.768,0.448,0.533,0.389,0.758,0.415,0.586,0.454,0.285,0.687,0.489,0.52,0.613,0.272,0.716,0.319,0.355,0.296,0.27,0.226,0.171,0.166,0.126,0.087,0.022,0.003,0.107,0.115,0.113,0.089,0.012,0.006,0.107,0.121,0.108,0.049,0.012,0.007,0.272,0.255,0.248,0.023,0.009,0.583,0.655,0.634,0.29,0.071,0.008,0.482,0.441,0.481,0.276,0.023,0.009,0.603,0.574,0.549,0.206,0.045,0.005,0.632,0.457,0.434,0.452,0.494,0.446,0.723,0.649,0.761,0.328,0.742,0.52,0.583,0.785,0.56,0.613,0.345,0.623,0.541,0.524,0.953,0.574,0.522,0.743,0.452,0.744,0.507,0.697,0.566,0.619,0.605,0.495,0.634,0.331,0.826,0.85,0.322,0.899,0.556,0.664,0.277,0.569,0.575,0.377,0.54,0.698,0.54,0.547,0.673,0.582,0.334,0.771,0.583,0.75,0.813,0.505,0.586,0.292,0.615,0.554,0.47,0.46,0.839,0.353,0.283,0.265,0.263,0.245,0.186,0.198,0.203,0.202,0.208,0.216,0.191,0.209,0.215,0.211,0.262,0.281,0.293,0.309,0.26,0.236,0.316,0.404,0.665,0.483,0.849,0.432,0.533,0.511,0.913,0.581,0.525,0.84,0.587,0.924,0.631,0.544,0.494,0.592,0.64,0.587,0.896,0.648,0.772,0.598,0.488,0.523,0.648,0.861,0.785,0.705,0.631,0.612,0.764,0.46,0.603,0.661,0.661,0.606,0.492,0.695,0.861,0.576,0.393,0.515,0.581,0.82,0.575,0.638,0.664,0.813,0.724,0.484,0.644,0.583,0.892,0.513,0.622,0.685,0.904,0.761,0.489,0.533,0.535,0.799,0.585,0.606,0.577,0.918,0.693,0.378,0.583,0.56,0.906,0.581,0.603,0.673,0.607,0.485,0.302,0.35,0.321,0.324,0.207,0.208,0.166,0.07,0.039,0.02,0.053,0.055,0.019,0.006]}]},{"id":"as-03-nlbtu-pt1","number":3,"name":"NLBTU PT1","stage":1,"versions":[{"id":"v01","label":"Rough 1","order":1,"note":"Pre-synths rough","file":"audio/03-nlbtu-pt1-rough-v01.mp3","date":"6 Oct","duration":439.7,"peaks":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.001,0.001,0.001,0.003,0.002,0.014,0.001,0.001,0.0,0.001,0.001,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.001,0.122,0.093,0.044,0.183,0.093,0.229,0.013,0.093,0.039,0.157,0.228,0.434,0.234,0.121,0.148,0.079,0.738,0.069,0.315,0.194,0.371,0.236,0.59,0.26,0.256,0.245,0.351,0.611,0.169,0.266,0.283,0.348,0.277,0.599,0.35,0.135,0.272,0.292,0.646,0.333,0.308,0.275,0.304,0.809,0.176,0.447,0.212,0.455,0.215,0.664,0.282,0.251,0.278,0.385,0.512,0.423,0.174,0.238,0.324,0.66,0.14,0.254,0.264,0.272,0.19,0.815,0.287,0.176,0.21,0.287,0.716,0.31,0.207,0.153,0.364,0.882,0.16,0.273,0.261,0.44,0.306,0.639,0.368,0.238,0.183,0.471,0.81,0.371,0.285,0.323,0.318,0.703,0.187,0.468,0.317,0.31,0.525,0.71,0.339,0.212,0.489,0.388,0.678,0.304,0.15,0.269,0.312,0.822,0.244,0.384,0.207,0.206,0.31,0.67,0.388,0.244,0.228,0.342,0.713,0.182,0.48,0.248,0.32,0.295,0.584,0.387,0.223,0.283,0.552,0.811,0.555,0.209,0.207,0.375,0.707,0.282,0.507,0.221,0.576,0.667,0.818,0.431,0.336,0.385,0.738,0.79,0.283,0.524,0.472,0.489,0.417,0.814,0.576,0.337,0.599,0.782,0.892,0.774,0.322,0.447,0.414,0.831,0.281,0.521,0.308,0.438,0.281,0.273,0.361,0.446,0.515,0.687,0.872,0.394,0.91,0.442,0.624,0.33,0.889,0.736,0.374,0.614,0.474,0.602,0.749,0.353,0.451,0.579,0.573,0.642,0.744,0.591,0.497,0.585,0.732,0.865,0.273,0.396,0.719,0.603,0.445,0.576,0.51,0.777,0.569,0.633,0.539,0.628,0.537,0.763,0.59,0.265,0.484,0.632,0.672,0.5,0.558,0.507,0.476,0.478,1.0,0.699,0.438,0.414,0.804,0.5,0.462,0.56,0.729,0.846,0.414,0.564,0.493,0.587,0.698,0.674,0.481,0.285,0.7,0.472,0.552,0.507,0.508,0.574,0.54,0.713,0.462,0.719,0.486,0.292,0.95,0.577,0.621,0.707,0.673,0.768,0.486,0.442,0.611,0.686,0.264,0.73,0.57,0.645,0.64,0.435,0.752,0.523,0.525,0.536,0.521,0.617,0.55,0.652,0.477,0.286,0.798,0.466,0.376,0.552,0.65,0.656,0.458,0.339,0.68,0.542,0.64,0.3,0.4,0.459,0.52,0.394,0.659,0.621,0.63,0.539,0.554,0.683,0.437,0.704,0.372,0.687,0.628,0.595,0.632,0.6,0.368,0.713,0.629,0.341,0.596,0.577,0.646,0.51,0.506,0.809,0.595,0.384,0.704,0.644,0.509,0.575,0.443,0.693,0.404,0.749,0.348,0.259,0.558,0.383,0.348,0.333,0.42,0.727,0.38,0.456,0.313,0.411,0.365,0.572,0.291,0.262,0.425,0.535,0.678,0.282,0.391,0.345,0.33,0.263,0.6,0.322,0.294,0.302,0.371,0.768,0.289,0.341,0.266,0.461,0.311,0.745,0.321,0.235,0.286,0.453,0.27,0.397,0.326,0.236,0.288,0.685,0.314,0.808,0.286,0.25,0.276,0.236,0.257,0.23,0.169,0.08,0.033,0.011,0.011,0.001,0.0,0.001,0.0,0.002,0.002,0.002,0.001,0.001,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.001,0.002,0.001,0.001,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]}]},{"id":"as-04-nlbtu-pt2","number":4,"name":"NLBTU PT2","stage":3,"versions":[{"id":"v02","label":"Mix 1","order":2,"file":"audio/04-nlbtu-pt2-mix-v01.mp3","date":"6 Oct","duration":485.8,"peaks":[0.081,0.261,0.169,0.17,0.19,0.198,0.157,0.162,0.173,0.202,0.192,0.183,0.207,0.192,0.191,0.226,0.207,0.215,0.175,0.174,0.212,0.171,0.283,0.289,0.258,0.2,0.203,0.255,0.325,0.242,0.243,0.251,0.306,0.325,0.361,0.286,0.243,0.213,0.215,0.22,0.181,0.181,0.212,0.272,0.952,0.563,0.52,0.733,0.493,0.94,0.859,0.568,0.612,0.393,0.379,0.97,0.637,0.655,0.568,0.46,0.502,0.944,0.521,0.569,0.462,0.33,0.928,0.63,0.644,0.64,0.446,0.954,0.698,0.505,0.927,0.989,0.95,0.972,0.726,0.713,0.82,0.638,0.932,0.603,0.471,0.947,0.954,0.972,0.952,0.913,0.931,0.931,0.951,0.967,0.914,0.951,0.92,0.944,0.932,0.947,0.953,0.942,0.923,0.951,0.922,0.963,0.933,0.922,0.929,0.986,0.95,0.951,0.952,0.915,0.957,0.931,0.954,0.948,0.937,0.934,0.948,0.933,0.921,0.957,0.94,0.931,0.909,0.956,0.932,0.956,0.895,0.935,0.956,0.954,0.949,0.938,0.979,0.887,0.957,0.953,0.935,0.942,0.97,0.944,0.948,0.98,0.956,0.979,0.963,0.955,1.0,0.942,0.939,0.927,0.987,0.948,0.908,0.891,0.962,0.986,0.958,0.791,0.946,0.977,0.944,0.953,0.974,0.932,0.964,0.929,0.982,0.935,0.956,0.923,0.679,0.609,0.52,0.412,0.926,0.778,0.431,0.938,0.947,0.957,0.894,0.668,0.718,0.569,0.531,0.949,0.713,0.555,0.978,0.982,0.931,0.93,0.948,0.941,0.993,0.957,0.949,0.929,0.928,0.93,0.93,0.931,0.926,0.934,0.932,0.954,0.997,0.943,0.965,0.96,0.96,0.946,0.94,0.918,0.938,0.936,0.999,0.95,0.919,0.919,1.0,0.939,0.964,0.928,0.931,0.949,0.949,0.932,0.957,0.943,0.963,0.954,0.98,0.926,0.954,0.945,0.929,0.935,0.952,0.942,0.925,0.94,0.951,0.956,0.955,0.944,0.928,0.957,0.98,0.951,0.904,0.962,0.942,0.963,0.916,0.939,0.969,0.955,0.914,0.916,0.932,0.924,0.919,0.967,0.913,0.949,0.909,0.934,0.935,0.931,0.951,0.922,0.972,0.913,0.904,0.933,0.926,0.916,0.928,0.92,0.925,0.94,0.91,0.904,0.926,0.928,0.914,0.93,0.908,0.905,0.922,0.957,0.945,0.919,0.912,0.893,0.928,0.933,0.963,0.917,0.925,0.915,0.923,0.942,0.914,0.94,0.964,0.92,0.932,0.989,0.941,0.935,0.922,0.907,0.957,0.93,0.893,0.933,0.931,0.913,0.926,0.932,0.917,0.931,0.926,0.916,0.933,0.942,0.886,0.909,0.943,0.947,0.953,0.905,0.932,0.923,0.932,0.93,0.958,0.94,0.939,1.0,0.935,0.934,0.931,0.935,0.934,0.955,0.945,0.948,0.957,0.963,0.918,0.963,0.927,0.92,0.907,0.94,0.892,0.929,0.956,0.94,0.904,0.957,0.948,0.957,0.911,0.948,0.94,0.961,0.964,0.956,0.942,0.918,0.916,0.942,0.905,0.968,0.949,0.902,0.955,0.904,0.925,0.738,0.646,0.599,0.506,0.515,0.5,0.422,0.385,0.785,0.723,0.727,0.74,0.759,0.585,0.525,0.524,0.466,0.508,0.521,0.463,0.439,0.444,0.44,0.478,0.949,0.966,0.977,0.928,0.979,0.983,0.962,0.965,0.957,0.936,0.971,0.97,0.946,0.936,0.947,0.935,0.957,0.943,0.93,0.949,0.942,0.93,0.931,0.955,0.966,0.931,0.982,0.927,0.973,0.93,0.935,0.949,0.922,0.947,0.951,0.96,0.921,0.929,0.988,0.948,0.945,0.941,0.963,0.949,0.927,0.906,0.947,0.913,0.931,0.948,0.987,0.947,0.943,0.97,0.948,1.0,0.936,0.975,0.945,0.969,0.949,0.942,0.941,0.941,0.986,0.947,0.963,0.96,1.0,0.954,0.956,0.98,0.922,0.929,0.945,0.945,0.933,0.925,0.951,0.939,0.938,0.945,0.942,0.96,0.973,0.917,0.992,0.931,0.935,0.937,0.986,0.963,0.95,0.959,0.944,0.952,0.961,0.947,0.943,0.941,0.957,0.928,0.948,0.996,0.985,0.947,0.942,0.932,0.924,0.946,0.934,0.909,0.945,0.894,0.928,0.961,0.972,0.94,0.91,1.0,0.959,0.973,0.947,0.961,0.984,0.947,0.941,0.952,0.922,0.94,0.928,0.934,0.947,0.986,0.989,0.991,0.99,0.947,0.955,0.935,0.963,0.947,0.94,0.93,0.951,0.96,0.981,0.956,0.942,0.956,0.941,0.961,0.931,0.935,0.962,0.979,0.946,0.96,0.958,0.932,0.973,0.903,0.923,0.947,0.958,0.926,0.936,0.941,0.996,0.96,0.947,0.963,0.964,0.976,0.919,0.92,0.94,0.946,0.931,0.952,0.975,0.945,0.843,0.977,0.714,0.266,0.04,0.007,0.0]}]},{"id":"as-05-otherworldly","number":5,"name":"OTHERWORLDLY","stage":1,"versions":[{"id":"v01","label":"Rough 1","order":1,"note":"Pre-synths rough","file":"audio/05-otherworldly-rough-v01.mp3","date":"6 Oct","duration":540.1,"peaks":[0.007,0.015,0.015,0.009,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.012,0.011,0.013,0.008,0.008,0.007,0.007,0.006,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.001,0.004,0.002,0.001,0.001,0.003,0.007,0.001,0.011,0.117,0.115,0.119,0.114,0.122,0.111,0.605,0.639,0.13,0.418,0.474,0.623,0.707,0.77,0.621,0.653,0.746,0.784,0.733,0.89,0.573,0.758,0.766,0.489,0.651,0.743,0.492,0.403,0.726,0.379,0.44,0.467,0.957,0.8,0.646,0.868,0.733,0.625,0.773,0.756,0.63,0.653,0.75,0.62,0.902,0.422,0.554,0.653,0.431,0.574,0.852,0.612,0.832,0.662,0.632,0.702,0.683,0.623,0.697,0.725,0.685,0.71,0.592,0.716,0.458,0.497,0.631,0.499,0.53,0.777,0.226,0.209,0.143,0.15,0.124,0.427,0.868,0.869,0.674,0.66,0.708,0.66,0.736,0.616,0.78,0.605,0.583,0.624,0.642,0.698,0.686,0.702,0.834,0.67,0.655,0.754,0.66,0.702,0.722,0.763,0.699,0.708,0.756,0.731,0.843,0.687,0.676,0.728,0.669,0.695,0.664,0.926,0.76,0.727,0.743,0.645,0.717,0.826,0.718,0.727,0.643,0.68,0.773,0.834,0.739,0.678,0.679,0.666,0.652,0.839,0.2,0.144,0.109,0.206,0.181,0.137,0.132,0.129,0.125,0.734,0.434,0.389,0.159,0.9,0.468,0.622,0.786,0.756,0.54,0.758,0.761,0.794,0.608,0.578,0.725,0.723,0.617,0.76,0.697,0.411,0.438,0.601,0.811,0.699,0.517,0.829,0.921,0.617,0.699,0.713,0.531,0.647,0.605,0.684,0.843,0.604,0.724,0.695,0.473,0.612,0.769,0.384,0.849,0.945,0.764,0.171,0.168,0.144,0.084,0.873,0.768,0.76,0.783,0.845,0.756,0.81,0.67,0.699,0.837,0.783,0.626,0.766,0.62,0.942,0.678,0.717,0.811,0.687,0.711,0.665,0.712,0.76,0.658,0.641,0.656,0.641,0.633,0.702,0.766,0.763,0.723,0.656,0.708,0.667,0.896,0.649,0.707,0.739,0.695,0.742,0.667,0.795,0.68,0.672,0.653,0.779,0.651,0.775,0.682,0.763,0.674,0.741,0.569,0.782,0.493,0.694,0.619,0.831,0.681,0.669,0.591,0.646,0.313,0.624,0.343,0.721,0.346,0.518,0.606,0.283,0.414,0.364,0.512,0.44,0.357,0.345,0.814,0.632,0.748,0.742,0.881,0.708,0.671,0.714,0.747,0.788,0.782,0.7,0.8,0.725,0.753,0.726,0.795,0.799,0.757,0.624,0.727,0.74,0.695,0.683,0.925,0.754,0.699,0.787,1.0,0.544,0.788,0.698,0.693,0.631,0.832,0.654,0.681,0.817,0.677,0.573,0.738,0.822,0.618,0.767,0.521,0.737,0.691,0.66,0.748,0.742,0.81,0.613,0.608,0.758,0.574,0.537,0.634,0.615,0.826,0.928,0.432,0.753,0.524,0.939,0.745,0.72,0.696,0.386,0.678,0.398,0.784,0.84,0.654,0.797,0.46,0.86,0.789,0.642,0.782,0.793,0.599,0.485,0.429,0.792,0.721,0.355,0.78,0.789,0.505,0.672,0.874,0.723,0.537,0.813,0.826,0.541,0.719,0.815,0.563,0.709,0.754,0.819,0.621,0.678,0.827,0.697,0.662,0.755,0.733,0.691,0.628,0.826,0.791,0.832,0.798,0.706,0.674,0.688,0.863,0.862,0.633,0.62,0.671,0.569,0.504,0.963,0.794,0.742,0.936,0.731,0.823,0.786,0.848,0.908,0.815,0.735,0.61,0.652,0.597,0.774,0.293,0.185,0.114,0.095,0.094,0.093,0.101,0.125,0.699,0.597,0.152,0.626,0.607,0.669,0.824,0.693,0.777,0.658,0.537,0.791,0.598,0.973,0.771,0.593,0.731,0.768,0.722,0.781,0.523,0.582,0.716,0.372,0.59,0.633,0.852,0.73,0.622,0.686,0.802,0.585,0.683,0.617,0.721,0.661,0.549,0.791,0.829,0.508,0.342,0.71,0.781,0.691,0.792,0.407,0.648,0.448,0.622,0.712,0.556,0.489,0.486,0.281,0.468,0.801,0.115,0.113,0.084,0.074,0.066,0.055,0.029,0.016,0.009,0.0,0.004,0.002,0.0,0.0,0.0,0.0,0.0,0.001,0.002,0.0,0.0,0.0,0.001,0.001,0.001,0.001]}]},{"id":"as-06-survivor","number":6,"name":"SURVIVOR","stage":1,"versions":[{"id":"v01","label":"Rough 1","order":1,"note":"Pre-synths rough","file":"audio/06-survivor-rough-v01.mp3","date":"6 Oct","duration":621.3,"peaks":[0.01,0.008,0.002,0.0,0.001,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.001,0.0,0.0,0.0,0.062,0.074,0.036,0.021,0.069,0.067,0.073,0.058,0.025,0.064,0.083,0.074,0.073,0.082,0.058,0.027,0.057,0.08,0.078,0.07,0.033,0.07,0.078,0.081,0.067,0.095,0.067,0.039,0.388,0.896,0.44,0.788,0.751,0.623,0.774,0.884,0.708,0.894,0.953,0.047,0.827,0.899,0.513,0.807,0.614,0.761,0.73,0.88,0.692,0.787,0.843,0.077,0.03,0.807,0.843,0.821,0.543,0.807,0.591,0.86,0.878,0.805,0.725,0.822,0.05,0.025,0.916,0.882,0.825,0.874,0.689,0.732,0.812,0.901,0.707,0.953,0.445,0.063,0.558,0.522,0.91,0.742,0.528,0.945,0.706,0.75,0.878,0.891,0.876,0.401,0.058,0.019,0.701,0.891,0.884,0.652,0.74,0.709,0.828,0.819,0.729,0.807,0.098,0.154,0.862,0.611,0.821,0.849,0.788,0.645,0.772,0.776,0.846,0.722,0.857,0.962,0.682,0.888,1.0,0.834,0.978,0.967,0.873,0.917,0.965,0.772,0.996,0.942,0.904,0.937,0.555,0.808,0.966,0.944,0.815,0.998,0.8,0.831,0.929,0.348,0.251,0.229,0.518,0.944,0.544,0.759,0.953,0.7,0.908,0.92,0.789,0.77,0.916,0.251,0.25,0.567,0.945,0.79,0.707,0.779,0.789,0.851,0.795,0.948,0.981,0.223,0.165,0.819,0.92,0.814,0.82,0.724,0.739,0.798,0.968,0.769,0.775,0.233,0.213,0.661,0.855,0.751,0.543,0.765,0.842,0.843,0.87,0.745,0.913,0.183,0.157,0.735,0.527,0.808,0.826,0.851,0.768,0.618,0.902,0.719,0.762,0.859,1.0,0.8,0.818,0.95,0.691,0.917,0.938,0.735,0.824,0.769,0.771,0.956,0.929,0.875,0.898,0.765,0.91,1.0,0.755,0.903,0.909,0.736,0.982,0.676,0.808,0.882,0.651,0.875,0.916,0.842,0.889,0.949,0.915,0.892,0.767,0.902,0.952,0.803,0.893,0.937,0.83,0.884,0.861,0.81,0.892,0.273,0.245,0.186,0.101,0.101,0.13,0.116,0.109,0.09,0.844,0.715,0.711,0.913,0.984,0.901,0.87,0.596,0.922,0.735,0.782,0.879,0.802,0.806,0.834,0.915,0.879,0.813,0.918,0.906,0.804,0.794,0.942,0.789,0.803,0.88,0.915,0.853,0.768,0.717,0.954,0.868,0.868,1.0,0.68,0.634,0.817,1.0,0.401,0.881,0.855,0.941,0.875,0.862,1.0,0.84,0.816,0.848,0.901,0.834,0.698,0.854,0.924,0.646,0.841,0.953,0.655,0.771,0.78,0.942,0.798,0.875,0.895,0.912,0.835,0.916,0.874,0.972,0.762,0.87,0.91,0.773,0.692,0.988,0.853,0.933,0.849,0.948,0.809,0.878,0.959,0.643,0.877,0.799,0.996,0.656,0.828,0.609,0.879,0.988,0.842,0.856,0.829,0.826,0.717,0.885,0.784,0.886,0.726,0.814,0.826,0.852,0.995,1.0,0.906,0.723,0.98,1.0,0.888,0.956,1.0,0.758,0.886,0.979,1.0,0.873,0.965,0.973,0.55,0.885,0.508,0.934,0.763,0.945,0.676,0.908,0.892,0.856,0.804,0.782,0.999,1.0,0.934,0.999,0.95,1.0,0.959,0.991,0.949,0.849,0.972,0.929,0.94,0.944,1.0,0.98,0.739,0.968,0.825,1.0,0.91,0.95,0.718,0.845,0.909,0.946,0.726,1.0,0.978,0.882,0.864,0.933,0.929,0.98,0.972,0.979,0.708,0.998,0.967,0.915,0.95,0.931,0.979,0.84,0.888,0.885,0.957,0.808,0.938,0.926,0.808,0.932,0.808,0.906,0.838,0.828,0.926,0.905,0.844,0.88,0.957,0.804,0.898,0.955,0.72,0.88,0.884,0.91,0.76,0.91,0.942,0.885,0.657,0.84,0.904,0.931,0.922,0.795,0.943,0.861,0.884,0.964,0.713,0.971,0.988,0.731,0.876,0.96,0.821,0.789,0.929,1.0,0.907,0.871,0.942,0.854,0.741,0.826,0.986,0.92,0.776,0.928,0.978,0.753,0.851,0.929,0.949,0.773,0.772,0.818,0.851,0.974,0.943,0.78,0.882,0.918,0.886,0.881,0.858,0.999,0.783,0.844,0.762,0.872,0.759,0.706,0.968,0.869,0.918,0.829,0.954,0.94,0.889,0.855,0.993,0.855,0.983,0.934,0.875,0.835,0.996,0.972,0.874,0.789,1.0,0.899,0.841,0.866,0.976,0.963,0.946,0.84,0.789,0.839,0.866,0.995,0.798,0.757,0.947,1.0,0.962,0.9,0.876,0.768,0.743,0.92,0.817,0.813,0.773,0.955,0.445,0.217,0.221,0.179,0.089,0.061,0.045,0.046,0.024,0.001,0.0,0.001,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]}]},{"id":"as-07-the-last-dance","number":7,"name":"THE LAST DANCE","stage":1,"versions":[{"id":"v01","label":"Rough 1","order":1,"note":"Pre-synths rough","file":"audio/07-the-last-dance-rough-v01.mp3","date":"6 Oct","duration":427.8,"peaks":[0.0,0.0,0.0,0.001,0.001,0.034,0.001,0.043,0.002,0.001,0.038,0.015,0.039,0.015,0.64,0.245,0.217,0.34,0.225,0.722,0.195,0.328,0.211,0.604,0.177,0.365,0.158,0.601,0.208,0.469,0.199,0.779,0.241,0.18,0.361,0.183,0.664,0.201,0.413,0.198,0.703,0.237,0.395,0.173,0.758,0.179,0.444,0.223,0.685,0.254,0.381,0.309,0.631,0.315,0.293,0.433,0.291,0.578,0.216,0.381,0.285,0.607,0.345,0.406,0.287,0.508,0.224,0.386,0.185,0.537,0.351,0.285,0.386,0.318,0.702,0.214,0.38,0.21,0.583,0.182,0.391,0.321,0.586,0.249,0.555,0.265,0.765,0.397,0.486,0.294,0.263,0.626,0.23,0.539,0.325,0.59,0.302,0.335,0.182,0.74,0.244,0.486,0.365,0.739,0.335,0.529,0.374,0.329,0.763,0.403,0.469,0.525,0.645,0.482,0.485,0.361,0.345,0.943,0.656,0.473,0.547,0.499,0.693,0.73,0.506,0.348,0.563,0.601,0.683,0.421,0.602,0.553,0.286,0.541,0.561,0.704,0.312,0.492,0.562,0.367,0.751,0.414,0.356,0.548,0.38,0.323,0.589,0.402,0.699,0.386,0.752,0.749,0.421,0.399,0.699,0.441,0.581,0.359,0.424,0.542,0.511,0.629,0.321,0.679,0.644,0.556,0.46,0.605,0.433,0.719,0.441,0.712,0.625,0.612,0.37,0.545,0.719,0.585,0.32,0.477,0.63,0.472,0.424,0.65,0.44,0.629,0.344,0.544,0.544,0.482,0.591,0.594,0.468,0.411,0.561,0.553,0.623,0.297,0.476,0.503,0.524,0.484,0.588,0.377,0.732,0.331,0.355,0.586,0.46,0.506,0.646,0.455,0.668,0.308,0.445,0.755,0.28,0.451,0.502,0.374,0.467,0.538,0.445,0.718,0.372,0.638,0.732,0.428,0.634,0.812,0.571,0.602,0.614,0.644,0.513,0.909,0.585,0.405,0.697,0.458,0.686,0.604,0.533,0.645,0.54,0.597,0.659,0.94,0.399,0.495,0.658,0.736,0.668,0.6,0.608,0.482,0.556,0.617,0.683,0.427,0.67,0.576,0.644,0.572,0.543,0.629,0.637,0.622,0.756,0.505,0.476,0.862,0.532,0.392,0.694,0.553,0.643,0.594,0.567,0.758,0.542,0.492,0.598,0.638,0.77,0.607,0.511,0.477,0.651,0.645,0.8,0.64,0.261,0.598,0.642,0.755,0.504,0.662,0.691,0.7,0.777,0.679,0.627,0.453,0.443,0.61,0.513,0.655,0.42,0.489,0.632,0.721,0.687,0.233,0.187,0.181,0.138,0.126,0.074,0.107,0.152,0.16,0.173,0.163,0.171,0.156,0.177,0.173,0.183,0.169,0.171,0.189,0.159,0.182,0.152,0.539,0.764,0.595,0.631,0.601,0.525,0.64,0.577,0.535,0.559,0.684,0.497,0.646,0.484,0.548,0.514,0.778,0.557,0.493,0.638,0.568,0.605,0.495,0.566,0.552,0.516,0.419,0.534,0.603,0.472,0.694,0.555,0.669,0.599,0.557,0.609,0.598,0.731,0.476,0.582,0.589,0.641,0.587,0.571,0.738,0.578,0.531,0.719,0.565,0.537,0.559,0.655,0.627,0.606,0.533,0.519,0.704,0.684,0.698,0.525,0.556,0.588,0.489,0.535,0.497,0.517,0.604,0.487,0.621,0.492,0.592,0.583,0.578,0.642,0.582,0.497,0.596,0.518,0.552,0.586,0.577,0.484,0.641,0.612,0.579,0.501,0.669,0.479,0.639,0.522,0.596,0.611,0.689,0.747,0.564,0.612,0.641,0.598,0.535,0.714,0.613,0.497,0.419,0.57,0.546,0.635,0.555,0.59,0.543,0.639,0.635,0.592,0.615,0.674,0.745,0.849,0.659,0.672,0.848,0.553,0.692,0.749,0.632,1.0,0.67,0.65,0.643,0.615,0.699,0.86,0.677,0.838,0.673,0.623,0.612,0.625,0.69,0.659,0.631,0.586,0.622,0.728,0.544,0.732,0.64,0.778,0.716,0.771,0.737,0.616,0.735,0.619,0.679,0.645,0.594,0.639,0.617,0.722,0.64,0.659,0.666,0.706,0.619,0.62,0.736,0.704,0.787,0.704,0.869,0.748,0.705,0.841,0.634,0.592,0.486,0.588,0.753,0.7,0.602,0.506,0.528,0.656,0.592,0.688,0.576,0.626,0.514,0.527,0.657,0.687,0.695,0.607,0.534,0.741,0.573,0.574,0.8,0.58,0.651,0.549,0.718,0.543,0.561,0.581,0.664,0.835,0.595,0.572,0.641,0.615,0.584,0.623,0.592,0.633,0.659,0.454,0.693,0.589,0.684,0.668,0.592,0.552,0.832,0.714,0.603,0.585,0.582,0.679,0.566,0.728,0.362,0.247,0.224,0.201,0.188,0.144,0.138,0.154,0.145,0.153,0.171,0.189,0.148,0.136,0.094,0.057,0.013,0.01,0.001,0.001,0.001,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]}]},{"id":"as-08-zabomination","number":8,"name":"ZABOMINATION","stage":1,"versions":[{"id":"v01","label":"Rough 1","order":1,"note":"Pre-synths rough","file":"audio/08-zabomination-rough-v01.mp3","date":"6 Oct","duration":289.9,"peaks":[0.0,0.0,0.001,0.001,0.001,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.005,0.098,0.121,0.119,0.135,0.128,0.118,0.112,0.121,0.121,0.133,0.126,0.112,0.148,0.139,0.118,0.121,0.149,0.111,0.122,0.116,0.117,0.121,0.13,0.581,0.286,0.278,0.197,0.181,0.176,0.355,0.377,0.344,0.32,0.324,0.313,0.467,0.299,0.237,0.268,0.299,0.292,0.265,0.26,0.432,0.328,0.485,0.744,0.519,0.58,0.371,0.661,0.591,0.757,0.673,0.45,0.62,0.324,0.686,0.614,0.702,0.704,0.621,0.445,0.689,0.368,0.57,0.485,0.67,0.543,0.689,0.781,0.466,0.543,0.451,0.57,0.636,0.498,0.742,0.573,0.624,0.428,0.617,0.692,0.46,0.561,0.412,0.718,0.543,0.75,0.644,0.492,0.699,0.48,0.667,0.424,0.673,0.669,0.385,0.669,0.431,0.48,0.846,0.478,0.402,0.714,0.474,0.466,0.585,0.465,0.661,0.428,0.323,0.659,0.303,0.462,0.509,0.722,0.422,0.541,0.487,0.285,0.655,0.599,0.772,0.549,0.748,0.603,0.498,0.496,0.648,0.752,0.486,0.345,0.322,0.318,0.251,0.231,0.218,0.339,0.311,0.289,0.26,0.24,0.23,0.242,0.226,0.239,0.201,0.226,0.254,0.211,0.605,0.506,0.461,0.58,0.592,0.292,0.622,0.664,0.64,0.679,0.556,0.333,0.44,0.397,0.655,0.514,0.501,0.618,0.501,0.59,0.542,0.655,0.738,0.486,0.761,0.846,0.523,0.648,0.594,0.416,0.481,0.487,0.718,0.73,0.617,0.737,0.81,0.402,0.747,0.681,0.519,0.753,0.558,0.717,0.54,0.659,0.636,0.474,0.585,0.64,0.907,0.478,0.518,0.75,0.713,0.636,0.561,0.438,0.596,0.478,0.509,0.607,0.594,0.633,0.672,0.719,0.468,0.535,0.601,0.697,0.512,0.532,0.491,0.791,0.398,0.535,0.567,0.342,0.434,0.371,0.821,0.311,0.394,0.6,0.324,0.439,0.342,0.772,0.335,0.503,0.618,0.414,0.403,0.455,0.818,0.404,0.443,0.372,0.691,0.564,0.69,0.622,0.337,0.523,0.54,0.354,0.493,0.294,0.868,0.49,0.783,0.829,0.473,0.47,0.299,0.647,0.907,0.376,0.695,0.448,0.556,0.301,0.535,0.508,0.329,0.525,0.589,0.587,0.777,0.322,0.515,0.667,0.5,0.559,0.447,0.681,0.827,0.526,0.515,0.558,0.683,0.7,0.511,0.733,0.355,0.59,0.519,0.785,0.644,0.611,0.371,0.672,0.499,0.401,0.885,0.682,0.563,0.378,0.789,0.559,0.384,0.792,0.821,0.537,0.485,0.6,0.728,0.492,0.721,0.554,0.42,0.854,0.832,0.506,0.682,0.691,0.484,0.465,0.446,0.655,0.728,0.85,0.3,0.314,0.322,0.356,0.35,0.354,0.346,0.311,0.302,0.242,0.205,0.2,0.201,0.216,0.222,0.191,0.19,0.237,0.188,0.201,0.219,0.2,0.212,0.218,0.197,0.193,0.195,0.189,0.175,0.2,0.239,0.199,0.202,0.198,0.427,0.708,0.508,0.466,0.455,0.616,0.608,0.545,0.429,0.409,0.484,0.44,0.411,0.543,0.408,0.408,0.498,0.477,0.521,0.848,0.469,0.407,0.407,0.416,0.391,0.496,0.397,0.354,0.339,0.487,0.801,0.537,0.658,0.479,0.436,0.453,0.668,0.458,0.782,0.341,0.332,0.359,1.0,0.348,0.489,0.725,0.884,0.573,0.795,0.47,0.588,0.821,0.583,0.662,0.811,0.607,0.443,0.638,0.773,0.606,0.888,0.619,0.533,0.544,0.457,0.549,0.857,0.618,0.444,0.466,0.615,0.563,0.803,0.627,0.464,0.776,0.742,0.664,0.699,0.543,0.517,0.615,0.634,0.596,0.821,0.605,0.427,0.611,0.559,0.456,0.549,0.498,0.489,0.495,0.623,0.682,0.952,0.557,0.873,0.705,0.568,0.518,0.824,0.696,0.508,0.656,0.646,0.491,0.565,0.59,0.454,0.653,0.657,0.421,0.672,0.552,0.518,0.695,0.569,0.841,0.486,0.673,0.478,0.458,0.701,0.879,0.635,0.682,0.586,0.548,0.512,0.618,0.493,0.49,0.615,0.514,0.55,0.697,0.563,0.471,0.568,0.504,0.565,0.69,0.413,0.359,0.386,0.397,0.362,0.359,0.284,0.286,0.192,0.238,0.241,0.226,0.22,0.248,0.242,0.219,0.228,0.242,0.221,0.25,0.265,0.227,0.245,0.297,0.209,0.213,0.197,0.204,0.181,0.151,0.137,0.13,0.092,0.09,0.103,0.082,0.066,0.168,0.038,0.073,0.226,0.193,0.218,0.033,0.1,0.176,0.044,0.069,0.087,0.027,0.05,0.158,0.175,0.042,0.036,0.026,0.032,0.049,0.196,0.017,0.059,0.22,0.157,0.248,0.023,0.105,0.173,0.074,0.099,0.014,0.019,0.051,0.218,0.065]}]}],"notes":[]}</script>
+<div class="toast" id="toast" hidden></div>
+<div class="sendbar" id="sendBar" hidden><span id="sendBarTxt"></span><a class="btn primary" id="sendBarBtn" href="#localPanel">Send my notes ↗</a></div>
+
+<script>
+const STAGES=["Pre-pro","Recording","Edit","Mix","Master","Sign-off"];
+const $=s=>document.querySelector(s);
+const A=$("#audio");
+const S={draft:{},db:null,meta:null,tracks:[],notes:[],signoffs:{},sel:{},playing:null,pendingAt:{},canWrite:true,peaks:{},rx:{},rxOpen:null};
+const same=(a,b)=>String(a||"").trim().toLowerCase()===String(b||"").trim().toLowerCase();
+function rxCount(){ return Object.keys(S.rx).length; }
+function rxLine(n,r){ return (r.kind==="agree"?"AGREE ":"DISAGREE ")+n.versionLabel+" @ "+fmt(n.time)+" ("+(n.by||"Someone")+")"+(r.why?" - "+r.why.replace(/\s*\n\s*/g," "):""); }
+
+function el(tag,attrs={},...kids){const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs)){if(v==null||v===false)continue;if(k==="class")e.className=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v===true?"":v);}for(const k of kids.flat()){if(k==null||k===false)continue;e.append(k.nodeType?k:document.createTextNode(String(k)));}return e;}
+function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,3200);}
+function fmt(s){s=Math.max(0,s||0);const m=Math.floor(s/60),x=Math.floor(s%60);return m+":"+String(x).padStart(2,"0");}
+function safeUrl(u){try{const x=new URL(u);return x.protocol==="https:"?x.href:null;}catch{return null;}}
+function fdate(ms){return ms?new Date(ms).toLocaleDateString("en-GB",{day:"numeric",month:"short"}):"";}
+function versionsOf(t){return (t.versions||[]).slice().sort((a,b)=>(b.order||0)-(a.order||0));}
+function curVersion(t){const vs=versionsOf(t);return vs.find(v=>v.id===S.sel[t.id])||vs[0]||null;}
+async function write(fn,msg){if(S.local){return false;}if(!S.db){toast("Sign in to Claude to leave notes.");return false;}try{await fn(S.db);if(msg)toast(msg);return true;}catch(e){toast(e&&e.code==="invalid_argument"?"Your access is view-only, so notes can't be saved. Ask the studio for edit access.":"Couldn't save. Check your connection and try again.");return false;}}
+
+/* ---------- waveform ---------- */
+async function getPeaks(v){
+  if(v.peaks&&v.peaks.length) return v.peaks;
+  if(S.peaks[v.file]) return S.peaks[v.file];
+  try{
+    const buf=await (await fetch(v.file)).arrayBuffer();
+    const ctx=new OfflineAudioContext(1,44100,44100);
+    const ab=await ctx.decodeAudioData(buf);const ch=ab.getChannelData(0);const N=600,step=Math.floor(ch.length/N)||1;const out=[];
+    for(let i=0;i<N;i++){let m=0;for(let j=i*step;j<(i+1)*step&&j<ch.length;j+=8){const a=Math.abs(ch[j]);if(a>m)m=a;}out.push(+m.toFixed(3));}
+    const mx=Math.max(...out)||1;S.peaks[v.file]=out.map(x=>x/mx);return S.peaks[v.file];
+  }catch{return null;}
+}
+function drawWave(canvas,peaks,prog){
+  const dpr=window.devicePixelRatio||1,w=canvas.clientWidth,h=canvas.clientHeight;if(!w)return;
+  canvas.width=w*dpr;canvas.height=h*dpr;const c=canvas.getContext("2d");c.scale(dpr,dpr);
+  const cs=getComputedStyle(document.documentElement);const base=cs.getPropertyValue("--wave").trim(),acc=cs.getPropertyValue("--green-light").trim();
+  if(!peaks){c.fillStyle=base;c.fillRect(0,h/2-1,w,2);if(prog>0){c.fillStyle=acc;c.fillRect(0,h/2-1,w*prog,2);}return;}
+  const bw=3,gap=1,n=Math.floor(w/(bw+gap));
+  for(let i=0;i<n;i++){const p=peaks[Math.floor(i/n*peaks.length)]||0;const bh=Math.max(2,p*(h-8));c.fillStyle=(i/n)<prog?acc:base;c.fillRect(i*(bw+gap),(h-bh)/2,bw,bh);}
+}
+
+/* ---------- render ---------- */
+function render(){
+  const m=S.meta||{};
+  $("#ptitle").replaceChildren(document.createTextNode(m.artist||"Your project"),el("em",{},m.title||""));
+  const mm=m.money||{}; const paidUp=((mm.charged>0)||(mm.items||[]).length)&&(mm.owed||0)<=0;
+  const dl=(m.downloadsOpen||paidUp)?safeUrl(m.driveUrl):null;$("#dl").hidden=!dl;if(dl)$("#dl").href=dl;
+  renderLocalPanel(); renderBalance(m); renderNext(m);
+  if(m.artist) document.title=(m.artist+" · Black Cactus Studio");
+  const box=$("#tracks");
+  if(!S.tracks.length){box.replaceChildren(el("div",{class:"empty"},el("h2",{},"Mixes on the way"),el("p",{class:"muted"},"As soon as we bounce a mix it lands here, ready to play.")));return;}
+  const ae=document.activeElement, aeId=ae&&ae.id, sel=ae&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null;
+  box.querySelectorAll("textarea[id^='n-']").forEach(x=>S.draft[x.id]=x.value);
+  box.replaceChildren(...S.tracks.slice().sort((a,b)=>(a.number||99)-(b.number||99)).map(renderTrack));
+  box.querySelectorAll("textarea[id^='n-']").forEach(x=>{ if(S.draft[x.id]) x.value=S.draft[x.id]; });
+  if(aeId){ const n=document.getElementById(aeId); if(n&&n!==ae){ n.focus({preventScroll:true}); if(sel&&n.setSelectionRange) try{n.setSelectionRange(sel[0],sel[1]);}catch{} } }
+  requestAnimationFrame(()=>S.tracks.forEach(paintTrack));
+}
+function renderTrack(t){
+  const st=t.stage||0,so=S.signoffs[t.id];const v=curVersion(t);
+  const segs=el("div",{class:"segs"+(st>=6||so?" so":"")},...STAGES.map((s,i)=>el("i",{class:i<st?"d":i===st?"c":"",title:s})));
+  const stageLbl=st>=6||so?"Signed off":"Stage: "+STAGES[Math.min(st,5)];
+  const head=el("div",{class:"thead"},el("span",{class:"n"},String(t.number||"").padStart(2,"0")),el("h2",{},t.name||"Untitled"),el("span",{class:"sp"}),
+    el("div",{class:"prog"},segs,el("span",{},el("b",{},stageLbl))));
+  const card=el("section",{class:"track","data-id":t.id},head);
+  if(!v){card.append(el("p",{class:"muted"},"No mix up yet. We'll drop one in soon."));return card;}
+  const vs=versionsOf(t);
+  const vsel=el("select",{id:"v-"+t.id,"aria-label":"Mix version",onchange:e=>{S.sel[t.id]=e.target.value;if(S.playing===t.id){A.pause();S.playing=null;}render();}},
+    ...vs.map((x,i)=>el("option",{value:x.id,selected:x.id===v.id},x.label+(i===0?" (latest)":"")+(x.date?" · "+x.date:""))));
+  const isPlaying=S.playing===t.id&&!A.paused;
+  const loading=S.loadingFile===v.file;
+  const play=el("button",{class:"play"+(loading?" loading":""),type:"button","aria-label":loading?"Loading":isPlaying?"Pause":"Play",onclick:()=>toggle(t,v)},
+    loading?el("span",{class:"spin"}):svg(isPlaying?"M6 4h4v16H6zM14 4h4v16h-4z":"M7 4l13 8-13 8z"));
+  const canvas=el("canvas",{class:"wave","aria-label":"Waveform. Click to jump there and add a note."});
+  canvas.addEventListener("click",e=>{ if(e.detail===0) return;const r=canvas.getBoundingClientRect();const f=(e.clientX-r.left)/r.width;const dur=durOf(v);const at=f*dur;
+    S.pendingAt[t.id]=at;
+    if(S.playing===t.id){A.currentTime=at;}else{startPlay(t,v,at);}
+    const atEl=document.getElementById("at-"+t.id);if(atEl)atEl.textContent=fmt(at);});
+  const notes=S.notes.filter(n=>n.trackId===t.id&&n.version===v.id).sort((a,b)=>a.time-b.time);
+  const dur=durOf(v);
+  const marks=el("div",{class:"marks"},...notes.map(n=>el("button",{class:"mk"+(n.resolved?" r":""),type:"button",style:"left:"+Math.min(100,(n.time/dur)*100)+"%",title:fmt(n.time)+" "+n.text,"aria-label":"Note at "+fmt(n.time),onclick:()=>seek(t,v,n.time)})));
+  const times=el("div",{class:"times"},el("span",{id:"cur-"+t.id},fmt(S.playing===t.id?A.currentTime:0)),el("span",{},fmt(dur)));
+  const player=el("div",{class:"player"},play,el("div",{class:"wavebox"},canvas,marks,times));
+  const at=S.pendingAt[t.id]??0;
+  const compose=el("form",{class:"compose needs-write",onsubmit:e=>{e.preventDefault();addNote(t,v);}},
+    el("label",{class:"atlbl",for:"n-"+t.id},"Your note at ",el("span",{class:"at",id:"at-"+t.id},fmt(at)),el("small",{}," (tap the waveform to change the time)")),
+    el("textarea",{id:"n-"+t.id,maxlength:"2000",placeholder:"What are you hearing here? e.g. vocal needs to come up",required:true}),
+    el("button",{class:"btn save",type:"submit"},"Save note"));
+  const list=el("div",{class:"notes"},...(notes.some(n=>n.shared)?[el("p",{class:"saidhint"},"Here's what the band has said on "+v.label+" so far. Already said? Tap Agree instead of writing it again.")]:[]),...(notes.length?notes.map(n=>el("div",{class:"note"+(n.resolved?" res":"")+(n.shared?" shared":"")},
+    el("button",{class:"t",type:"button",onclick:()=>seek(t,v,n.time)},fmt(n.time)),
+    el("div",{},el("p",{},n.text),el("small",{},el("span",{class:"who"},n.by||"Someone")," · "+(n.date||fdate(n.createdAt))+(n.fromStudio?" · Studio":"")+(n.resolved?" · Sorted":"")+(n.local?" · Yours, not sent yet":"")),n.shared?reactRow(n):null),
+    n.local?el("button",{class:"rm",type:"button","aria-label":"Remove this note",onclick:()=>{ S.notes=S.notes.filter(x=>x!==n); saveLocal(); render(); toast("Note removed"); }},"Remove"):el("span")
+  )):[el("p",{class:"muted"},"No notes on "+v.label+" yet.")]));
+  card.append(el("div",{class:"vrow"},el("label",{for:"v-"+t.id},"Version"),vsel,v.note?el("span",{},v.note):null),player,list,compose);
+  if(S.local){
+    const mine=S.notes.filter(n=>n.local&&!n.resolved).length+rxCount();
+    const here=notes.filter(n=>n.local||S.rx[n.id]).length;
+    if(mine){
+      const btn=el("a",{class:"btn primary sendt",href:formUrl(),target:"_blank",rel:"noopener",onclick:e=>{ if(!myName()){ e.preventDefault(); toast("Pop your name in at the top first."); $("#me").focus(); return; } toast("Now press Submit on the form that opens"); }},"Send my notes to AJ ↗");
+      card.append(el("div",{class:"sendtrack"},
+        el("div",{},el("b",{},here?(here+(here===1?" note or reply":" notes or replies")+" on this song, not sent yet"):"You have notes on another song, not sent yet"),
+          el("span",{},(mine===1?"Tap the button to send your note.":"This sends all "+mine+" notes from every song in one go.")+" A form opens: just press Submit.")),
+        btn));
+    }
+  }
+  if(st>=5&&!so&&st<6){
+    const box=el("div",{class:"approve needs-write"});
+    const ask=()=>box.replaceChildren(el("span",{},"Totally happy with "+v.label+" as the final version?"),el("button",{class:"lnk",type:"button",onclick:()=>signOff(t,v)},"Yes, approve as final"),el("button",{class:"lnk mute",type:"button",onclick:closed},"Cancel"));
+    const closed=()=>box.replaceChildren(el("span",{},"No more changes needed?"),el("button",{class:"lnk",type:"button",onclick:ask},"Approve "+v.label+" as final"));
+    closed(); card.append(box);
+  }
+  if(so) card.append(el("div",{class:"signoff"},el("p",{},"Approved "+(so.version||"")+(so.by?" by "+so.by:"")+" on "+fdate(so.at)+".")));
+  return card;
+}
+function reactRow(n){
+  const agree=(n.agree||[]).filter(Boolean), dis=(n.disagree||[]).filter(x=>x&&x.by);
+  const me=myName(), mine=S.rx[n.id];
+  const kids=[];
+  if(agree.length) kids.push(el("span",{class:"cnt"},"Agreed: ",el("b",{},agree.join(", "))));
+  if(dis.length) kids.push(el("span",{class:"cnt"},"Disagreed: ",...dis.map((d,i)=>[i?", ":"",el("b",{},d.by),d.why?" ("+d.why+")":""])));
+  const isMe=me&&same(me,n.by), already=me&&(agree.some(a=>same(a,me))||dis.some(d=>same(d.by,me)));
+  if(!n.resolved&&!isMe){
+    if(mine){
+      kids.push(el("span",{class:"pend"},(mine.kind==="agree"?"You agree":"You disagree")+(mine.why?" ("+mine.why+")":"")+", not sent yet"),
+        el("button",{class:"lnk mute",type:"button",onclick:()=>{ delete S.rx[n.id]; saveLocal(); render(); }},"Undo"));
+    } else if(!already){
+      kids.push(el("button",{class:"btn",type:"button","aria-label":"Agree with "+(n.by||"this note"),onclick:()=>react(n,"agree")},"Agree"),
+        el("button",{class:"btn",type:"button","aria-label":"Disagree with "+(n.by||"this note"),onclick:()=>{ S.rxOpen=S.rxOpen===n.id?null:n.id; render(); setTimeout(()=>{const i=document.getElementById("why-"+n.id); if(i) i.focus();},0); }},"Disagree"));
+      if(S.rxOpen===n.id){
+        const inp=el("input",{id:"why-"+n.id,maxlength:"200",placeholder:"Why? (optional)","aria-label":"Why you disagree (optional)"});
+        kids.push(el("form",{class:"rxwhy",onsubmit:e=>{e.preventDefault(); react(n,"disagree",inp.value.trim());}},inp,el("button",{class:"btn on-dis",type:"submit"},"Save")));
+      }
+    }
+  }
+  return kids.length?el("div",{class:"rx"},...kids):null;
+}
+function react(n,kind,why){
+  if(!myName()){ toast("Pop your name in at the top first."); $("#me").focus(); return; }
+  S.rx[n.id]={kind,why:why||"",trackId:n.trackId,at:Date.now()}; S.rxOpen=null; saveLocal(); render();
+  toast(kind==="agree"?"Agree saved. Send your notes when you're done.":"Saved. Send your notes when you're done.");
+}
+function svg(d){const ns="http://www.w3.org/2000/svg";const s=document.createElementNS(ns,"svg");s.setAttribute("viewBox","0 0 24 24");const p=document.createElementNS(ns,"path");p.setAttribute("d",d);s.append(p);return s;}
+function durOf(v){return (S.playingFile===v.file&&A.duration&&isFinite(A.duration))?A.duration:(v.duration||1);}
+async function paintTrack(t){
+  const v=curVersion(t);if(!v)return;const c=document.querySelector('.track[data-id="'+t.id+'"] canvas.wave');if(!c)return;
+  const prog=S.playing===t.id?(A.currentTime/(durOf(v)||1)):0;
+  drawWave(c,v.peaks||S.peaks[v.file]||null,prog);
+  if(!(v.peaks&&v.peaks.length)&&!S.peaks[v.file]){const p=await getPeaks(v);if(p)drawWave(c,p,prog);}
+}
+
+/* ---------- playback ---------- */
+S.blobs={};
+async function blobFor(file){
+  if(S.blobs[file]) return S.blobs[file];
+  try{ const r=await fetch(file); const b=await r.blob(); S.blobs[file]=URL.createObjectURL(b); }catch{ S.blobs[file]=file; }
+  return S.blobs[file];
+}
+async function startPlay(t,v,at=0){
+  if(S.playingFile!==v.file){
+    S.loadingFile=v.file; render();
+    const src=await blobFor(v.file);
+    S.loadingFile=null;
+    A.src=src; S.playingFile=v.file;
+  }
+  S.playing=t.id;
+  S.seeking=true;
+  const go=()=>{try{A.currentTime=at;}catch{} A.play().catch(()=>{}); setTimeout(()=>{S.seeking=false;},400); };
+  if(A.readyState>=1) go(); else { A.addEventListener("loadedmetadata",go,{once:true}); A.load(); }
+}
+function toggle(t,v){ if(S.playing===t.id&&S.playingFile===v.file){ A.paused?A.play().catch(()=>{}):A.pause(); } else startPlay(t,v,S.pendingAt[t.id]||0); }
+function seek(t,v,time){ S.pendingAt[t.id]=time; const atEl=document.getElementById("at-"+t.id); if(atEl) atEl.textContent=fmt(time); if(S.playing===t.id&&S.playingFile===v.file){A.currentTime=time;A.play().catch(()=>{});} else startPlay(t,v,time); }
+A.addEventListener("play",render); A.addEventListener("pause",render);
+A.addEventListener("timeupdate",()=>{ if(!S.playing)return; const t=S.tracks.find(x=>x.id===S.playing); if(!t)return; const v=curVersion(t); const c=document.getElementById("cur-"+t.id); if(c)c.textContent=fmt(A.currentTime);
+  if(!S.seeking && !A.seeking && !A.paused && (!document.activeElement||document.activeElement.id!=="n-"+t.id)){ S.pendingAt[t.id]=A.currentTime; const atEl=document.getElementById("at-"+t.id); if(atEl) atEl.textContent=fmt(A.currentTime); }
+  const cv=document.querySelector('.track[data-id="'+t.id+'"] canvas.wave'); if(cv&&v) drawWave(cv,v.peaks||S.peaks[v.file]||null,A.currentTime/(durOf(v)||1)); });
+window.addEventListener("resize",()=>S.tracks.forEach(paintTrack));
+
+/* ---------- writes ---------- */
+function myName(){ return $("#me").value.trim(); }
+async function addNote(t,v){
+  const ta=document.getElementById("n-"+t.id); const text=ta.value.trim(); if(!text) return;
+  if(!myName()){ toast("Pop your name in at the top so we know who's talking."); $("#me").focus(); return; }
+  const time=Math.round((S.pendingAt[t.id]??A.currentTime??0)*10)/10;
+  if(S.local){ S.notes.push({id:"l"+Date.now(),trackId:t.id,version:v.id,versionLabel:v.label,time,text,by:myName(),resolved:false,createdAt:Date.now(),local:true}); saveLocal(); ta.value=""; S.draft[ta.id]=""; render(); toast("Note saved at "+fmt(time)); return; }
+  const ok=await write(db=>db.collection("notes").add({trackId:t.id,version:v.id,versionLabel:v.label,time,text,by:myName(),authorId:S.uid||null,resolved:false,createdAt:Date.now()}),"Note added at "+fmt(time));
+  if(ok){ ta.value=""; S.draft[ta.id]=""; const n=document.getElementById(ta.id); if(n) n.value=""; }
+}
+async function signOff(t,v){
+  if(!myName()){ toast("Add your name at the top first."); $("#me").focus(); return; }
+  if(S.local){ S.signoffs[t.id]={trackId:t.id,version:v.label,versionId:v.id,by:myName(),at:Date.now(),local:true}; saveLocal(); render(); toast("Approval noted. Send your notes to the studio to confirm it."); return; }
+  await write(db=>db.doc("signoffs/"+t.id).set({trackId:t.id,version:v.label,versionId:v.id,by:myName(),authorId:S.uid||null,at:Date.now()}),"Approved. The studio has been told.");
+}
+$("#me").addEventListener("change",()=>{ try{localStorage.setItem("bc-name",myName());}catch{} });
+try{ const n=localStorage.getItem("bc-name"); if(n) $("#me").value=n; }catch{}
+
+/* ---------- boot ---------- */
+const BANK={name:"Alan Jones",sort:"09-01-27",acc:"14134603"};
+function bankCard(m){
+  const bank=m.bank||BANK; const ref=m.ref||m.artist||"";
+  const row=(k,v)=>el("div",{class:"brow"},el("span",{},k),el("b",{},v),el("button",{class:"cp",type:"button","aria-label":"Copy "+k,onclick:async e=>{ try{ await navigator.clipboard.writeText(v); e.target.textContent="Copied"; }catch{ const r=document.createRange(); r.selectNodeContents(e.target.previousSibling); const s=getSelection(); s.removeAllRanges(); s.addRange(r); e.target.textContent="Selected"; } setTimeout(()=>e.target.textContent="Copy",1600); }},"Copy"));
+  return el("div",{class:"bank"},
+    el("div",{class:"bank-h"},el("span",{},"Pay by bank transfer"),el("small",{},"or cash in the studio")),
+    row("Name",bank.name), row("Sort code",bank.sort), row("Account",bank.acc), row("Reference",ref));
+}
+function renderBalance(m){
+  const box=$("#balance"); const b=m.money||{};
+  const G=new Intl.NumberFormat("en-GB",{style:"currency",currency:"GBP"});
+  const kids=[el("div",{class:"bhead"},el("b",{},"Your project"),m.moneyAsOf?el("small",{class:"basof"},"Updated "+m.moneyAsOf):null)];
+  const h=m.hours||{}; const ht=(Number(h.recording)||0)+(Number(h.post)||0);
+  if(ht) kids.push(el("p",{class:"hours"},el("b",{},ht+" hours")," on your music so far",
+     el("span",{}," ("+[h.recording?h.recording+" recording":null,h.post?h.post+" editing, mixing and mastering":null].filter(Boolean).join(", ")+")"),
+     (b.charged>0)?el("span",{class:"avg"}," · works out at "+new Intl.NumberFormat("en-GB",{style:"currency",currency:"GBP"}).format(b.charged/ht)+" an hour"):null));
+  const items=b.items||[];
+  if(items.length){
+    kids.push(el("div",{class:"items"},...items.map(it=>{ const gross=(Number(it.qty)||0)*(Number(it.rate)||0); const off=Math.min(gross,Number(it.discount)||0); const net=gross-off;
+      return el("div",{class:"item"},el("span",{class:"iw"},it.desc+(Number(it.qty)>1?" × "+it.qty:"")),
+        off?el("s",{},G.format(gross)):el("span"),
+        el("b",{class:net===0?"onus":""},net===0?"On the house":G.format(net))); })));
+  }
+  if(b.discount>0) kids.push(el("p",{class:"saved"},"You saved ",el("b",{},G.format(b.discount))," on this project. Our pleasure."));
+  const owed=Math.max(0,b.owed||0);
+  if(b.charged>0||items.length){
+    kids.push(el("div",{class:"bnums"},
+      el("div",{},el("span",{},"Your price"),el("b",{},G.format(b.charged||0))),
+      el("div",{},el("span",{},"Paid"),el("b",{},G.format((b.paid||0)+(b.free||0)))),
+      el("div",{class:owed>0?"owe":"ok"},el("span",{},owed>0?"Left to pay":"Balance"),el("b",{},owed>0?G.format(owed):"All paid"))));
+  } else kids.push(el("p",{class:"bpay"},"Session costs will show here once we've added them."));
+  const unlocked=m.downloadsOpen||((b.charged>0||items.length)&&owed<=0);
+  const dl=safeUrl(m.driveUrl);
+  const dlBox=el("div",{class:"dlbox"},
+    el("p",{class:"bpay"},"The tracks on this page are MP3s, to go easy on your data. Your full-quality WAVs download from our Google Drive once your balance is paid in full."));
+  if(unlocked&&dl){ dlBox.append(el("a",{class:"btn primary",href:dl,target:"_blank",rel:"noopener"},"Download full-quality WAVs ↗")); }
+  else{
+    dlBox.append(el("div",{class:"early"},
+      el("a",{class:"btn",href:"#",target:"_blank",rel:"noopener",onclick:e=>reqLink(e,"PAYMENT: "+(myName()||"Client")+" says they've already paid in full. Please check and unlock the WAVs.")},"I've already paid ↗"),
+      el("a",{class:"btn",href:"#",target:"_blank",rel:"noopener",onclick:e=>reqLink(e,"REQUEST: early access to the full-quality WAVs please.")},"Request early access ↗")));
+  }
+  kids.push(dlBox);
+  if(owed>0||!(b.charged>0)) kids.push(bankCard(m));
+  box.replaceChildren(...kids); box.hidden=false;
+}
+function renderNext(m){
+  const box=$("#nextSess"); const n=m.nextSession;
+  const wa=t=>"https://wa.me/447880354653?text="+encodeURIComponent(t);
+  const who=(m.artist||"").trim();
+  if(n&&n.date){
+    box.replaceChildren(el("div",{},el("span",{class:"nk"},"Your next session"),el("b",{class:"nd"},n.date),n.type?el("span",{class:"nt"},n.type):null),
+      el("a",{class:"btn",href:wa("Hi AJ, it's "+who+" about our session on "+n.date+". "),target:"_blank",rel:"noopener"},"Need to change it? ↗"));
+  } else {
+    box.replaceChildren(el("div",{},el("span",{class:"nk"},"Next session"),el("b",{class:"nd"},"Have you booked your follow-up?"),el("span",{class:"nt"},"Whether it's more recording or a mix session, grab a date before the diary fills up.")),
+      el("div",{class:"sendrow"},
+        el("a",{class:"btn green",href:wa("Hi AJ, it's "+who+". We'd like to book a follow-up recording session."),target:"_blank",rel:"noopener"},"Book recording ↗"),
+        el("a",{class:"btn",href:wa("Hi AJ, it's "+who+". We'd like to book a mix session."),target:"_blank",rel:"noopener"},"Book mix session ↗")));
+  }
+  box.hidden=false;
+}
+function reqLink(e,msg){
+  if(!myName()){ e.preventDefault(); toast("Pop your name in at the top first."); $("#me").focus(); return; }
+  const u=new URL(FORM); u.searchParams.set("usp","pp_url"); u.searchParams.set(F_NAME,myName()); u.searchParams.set(F_PROJECT,(S.meta.key||"")+" | "+(S.meta.artist||"")+" / "+(S.meta.title||"")); u.searchParams.set(F_NOTES,msg);
+  e.currentTarget.href=u.href; toast("A form opens with your message. Press Submit and we'll sort it.");
+}
+const SEED=(()=>{try{return JSON.parse(document.getElementById("seed").textContent);}catch{return {meta:{},tracks:[]};}})();
+const LKEY="bc-notes-"+(SEED.meta.key||"page");
+function saveLocal(){ try{ localStorage.setItem(LKEY,JSON.stringify({rx:S.rx,notes:S.notes.filter(n=>n.local),signoffs:Object.fromEntries(Object.entries(S.signoffs).filter(([k,v])=>v.local))})); }catch{} }
+function loadLocal(){ try{ const d=JSON.parse(localStorage.getItem(LKEY)||"{}"); S.notes=(d.notes||[]); S.signoffs=d.signoffs||{}; S.rx=d.rx||{}; }catch{} }
+function mergeShared(){
+  const shared=(SEED.notes||[]).map(n=>({...n,shared:true,local:false}));
+  const ids=new Set(shared.map(n=>n.id));
+  /* drop my own notes once the studio has synced them back in */
+  const mineLeft=S.notes.filter(n=>n.local&&!shared.some(s=>s.trackId===n.trackId&&s.version===n.version&&Math.abs((s.time||0)-(n.time||0))<1.5&&same(s.by,n.by)&&same(s.text,n.text)));
+  /* drop my agree/disagree once it shows on the note */
+  for(const [id,r] of Object.entries(S.rx)){ const s=shared.find(x=>x.id===id); if(!s){ if(!ids.has(id)) delete S.rx[id]; continue; }
+    const me=myName(); if(me&&((r.kind==="agree"&&(s.agree||[]).some(a=>same(a,me)))||(r.kind==="disagree"&&(s.disagree||[]).some(d=>same(d.by,me))))) delete S.rx[id]; }
+  S.notes=[...shared,...mineLeft]; saveLocal();
+}
+const FORM="https://docs.google.com/forms/d/e/1FAIpQLSeE3_UPAwZdn9Eab0YuixJAuZJ1VUFzMTZ15XFTaIbl5f75rA/viewform";
+const F_NAME="entry.412453666", F_PROJECT="entry.369055562", F_NOTES="entry.110286936";
+function formUrl(){
+  const u=new URL(FORM); u.searchParams.set("usp","pp_url");
+  u.searchParams.set(F_NAME,myName()||""); u.searchParams.set(F_PROJECT,(S.meta.key||"")+" | "+(S.meta.artist||"")+" / "+(S.meta.title||""));
+  u.searchParams.set(F_NOTES,notesBody()); return u.href;
+}
+function notesBody(){
+  const lines=[];
+  for(const t of S.tracks.slice().sort((a,b)=>(a.number||99)-(b.number||99))){
+    const ns=S.notes.filter(n=>n.local&&n.trackId===t.id&&!n.resolved).sort((a,b)=>(a.versionLabel||"").localeCompare(b.versionLabel||"")||a.time-b.time);
+    const so=S.signoffs[t.id];
+    const rs=S.notes.filter(n=>n.shared&&n.trackId===t.id&&S.rx[n.id]);
+    if(!ns.length&&!rs.length&&!(so&&so.local)) continue;
+    lines.push("== "+t.name.toUpperCase()+" ==");
+    for(const n of ns) lines.push(n.versionLabel+" @ "+fmt(n.time)+" - "+n.text.replace(/\s*\n\s*/g," "));
+    for(const n of rs) lines.push(rxLine(n,S.rx[n.id]));
+    if(so&&so.local) lines.push("APPROVED "+so.version);
+    lines.push("");
+  }
+  return lines.join("\n").trim();
+}
+function notesText(){
+  const lines=["BLACK CACTUS STUDIO · MIX NOTES","Artist: "+(S.meta.artist||"")+" / "+(S.meta.title||""),"From: "+(myName()||"(no name)"),"----------------------------------",""];
+  for(const t of S.tracks.slice().sort((a,b)=>(a.number||99)-(b.number||99))){
+    const ns=S.notes.filter(n=>n.local&&n.trackId===t.id&&!n.resolved).sort((a,b)=>(a.versionLabel||"").localeCompare(b.versionLabel||"")||a.time-b.time);
+    const so=S.signoffs[t.id];
+    const rs=S.notes.filter(n=>n.shared&&n.trackId===t.id&&S.rx[n.id]);
+    if(!ns.length&&!rs.length&&!so) continue;
+    lines.push(t.name.toUpperCase());
+    for(const n of rs) lines.push("   "+(S.rx[n.id].kind==="agree"?"Agree with ":"Disagree with ")+(n.by||"Someone")+" at "+n.versionLabel+" "+fmt(n.time)+(S.rx[n.id].why?": "+S.rx[n.id].why:""));
+    let last="";
+    for(const n of ns){ if(n.versionLabel!==last){ lines.push("  "+n.versionLabel+":"); last=n.versionLabel; } lines.push("   "+fmt(n.time)+"  "+n.text.replace(/\n/g," ")); }
+    if(so&&so.local) lines.push("  APPROVED "+so.version);
+    lines.push("");
+  }
+  return lines.join("\n");
+}
+function renderLocalPanel(){
+  const box=$("#localPanel"); if(!S.local){ box.hidden=true; return; }
+  const n=S.notes.filter(x=>x.local&&!x.resolved).length+rxCount(), a=Object.values(S.signoffs).filter(x=>x.local).length;
+  box.hidden=false;
+  $("#localCount").textContent = n||a ? (n+(n===1?" note":" notes")+(a?" and "+a+(a===1?" approval":" approvals"):"")+" ready to send.") : "Leave notes on the waveforms below, then send them over from here.";
+  $("#copyNotes").disabled=!(n||a);
+  const wa=$("#waNotes"); if(n||a){ const t=notesText(); wa.href="https://wa.me/447880354653?text="+encodeURIComponent(t); wa.setAttribute("aria-disabled",t.length<3500?"false":"true"); } else { wa.href="#"; wa.setAttribute("aria-disabled","true"); }
+  const bar=$("#sendBar"); bar.hidden=!(n||a); $("#sendBarTxt").textContent=(n||a)?(n+(n===1?" note":" notes")+(a?" + "+a+" approval":"")+" saved, not sent yet"):"";
+  const sn=$("#sendNotes"); if(n||a){ const href=formUrl(); if(href.length<7500){ sn.href=href; sn.setAttribute("aria-disabled","false"); } else { sn.setAttribute("aria-disabled","true"); sn.textContent="Too many notes for one send, use Copy"; } } else { sn.href="#"; sn.setAttribute("aria-disabled","true"); }
+}
+$("#sendNotes").addEventListener("click",e=>{ if($("#sendNotes").getAttribute("aria-disabled")==="true"){e.preventDefault();return;} if(!myName()){ e.preventDefault(); toast("Pop your name in at the top first."); $("#me").focus(); return; } $("#sendHelp").hidden=false; });
+$("#me").addEventListener("input",()=>renderLocalPanel());
+$("#sendBarBtn").addEventListener("click",e=>{ if(!myName()){ e.preventDefault(); toast("Pop your name in at the top first."); $("#me").focus(); return; } const b=$("#sendBarBtn"); b.href=formUrl(); b.target="_blank"; b.rel="noopener"; toast("Now press Submit on the form that opens"); });
+$("#waNotes").addEventListener("click",e=>{ if($("#waNotes").getAttribute("aria-disabled")==="true"){e.preventDefault();return;} if(!myName()){ e.preventDefault(); toast("Pop your name in at the top first."); $("#me").focus(); } });
+$("#copyNotes").addEventListener("click",async()=>{
+  const txt=notesText(); const pre=$("#notesOut"); pre.textContent=txt; pre.hidden=false;
+  try{ await navigator.clipboard.writeText(txt); toast("Copied. Paste it into a message or email to the studio."); }
+  catch{ const r=document.createRange(); r.selectNodeContents(pre); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); toast("Selected. Press Cmd+C (or Ctrl+C) to copy."); }
+});
+S.meta=SEED.meta||{}; S.tracks=SEED.tracks||[];
+
+(async()=>{
+  const db=window.claude?await window.claude.use("db"):null;
+  const user=window.claude?await window.claude.use("user"):null;
+  if(user){ try{ S.uid=await user.id(); const c=await user.can("data.write"); if(c===false){S.canWrite=false;document.body.classList.add("ro");} if(!$("#me").value){ const me=await user.me(); if(me.name) $("#me").value=me.name; } }catch{} }
+  if(true){ S.local=true; document.body.classList.remove("ro"); loadLocal(); mergeShared(); render(); return; }
+  S.db=db;
+  const err=()=>toast("Lost connection. Reload the page.");
+  db.doc("meta/project").onSnapshot(s=>{S.meta={...SEED.meta,...(s.exists?s.data():{})};render();},err);
+  db.collection("tracks").limit(200).onSnapshot(s=>{ if(s.size) S.tracks=s.docs.map(d=>({id:d.id,...d.data()})); render();},err);
+  db.collection("notes").limit(1000).onSnapshot(s=>{S.notes=s.docs.map(d=>({id:d.id,...d.data()}));render();},err);
+  db.collection("signoffs").limit(200).onSnapshot(s=>{const o={};s.docs.forEach(d=>o[d.id]=d.data());S.signoffs=o;render();},err);
+})();
+</script>
+
+
+</body></html>
