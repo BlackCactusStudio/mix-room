@@ -1,0 +1,270 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mix Room upload · Black Cactus Studio</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,500;9..40,700&family=DM+Mono:wght@500&display=swap">
+<style>
+:root{--bg:#0c0c0c;--panel:#141414;--panel-2:#1c1c1c;--line:#333;--fg:#f2f0ea;--muted:#c4c0b6;--green:#40916c;--gold:#c9a84c;--gold-soft:rgba(201,168,76,.12);--danger:#e57368;--display:"Bebas Neue",Impact,sans-serif;--body:"DM Sans",system-ui,sans-serif;--mono:"DM Mono",Menlo,monospace;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:500 16px/1.5 var(--body);padding:20px clamp(16px,4vw,48px) 80px}
+.wrap{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.bar{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:12px}
+.bar img{height:40px}
+.bar span{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:400;font-size:3rem;line-height:.9;margin:0}
+h2{font-family:var(--display);font-weight:400;font-size:1.6rem;letter-spacing:.03em;margin:0 0 10px}
+.card{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--green);padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.card.gold{border-left-color:var(--gold)}
+label{display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:.9rem}
+input,select{font:inherit;color:inherit;background:#000;border:1px solid var(--line);border-radius:3px;padding:10px 12px}
+input[type=file]{display:none}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.row>*{flex:1 1 14em}
+.btn{font:inherit;font-weight:700;cursor:pointer;border:1px solid var(--line);background:var(--panel-2);color:var(--fg);padding:10px 18px;border-radius:3px;min-height:44px}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:#16130a}
+.btn.green{background:var(--green);border-color:var(--green);color:#06120c}
+.btn:disabled{opacity:.4;cursor:default}
+.drop{border:2px dashed var(--line);padding:40px 20px;text-align:center;color:var(--muted);cursor:pointer;border-radius:3px}
+.drop.over{border-color:var(--gold);background:var(--gold-soft);color:var(--fg)}
+.drop b{display:block;font-family:var(--display);font-weight:400;font-size:1.8rem;color:var(--fg);letter-spacing:.03em}
+table{width:100%;border-collapse:collapse;font-size:.95rem}
+th{font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:8px;border-bottom:1px solid var(--line);vertical-align:middle}
+td input,td select{width:100%;padding:7px 9px}
+td.n{width:4.5em}
+.muted{color:var(--muted);font-size:.9rem;margin:0}
+.warn{color:var(--gold)}
+.err{color:var(--danger)}
+.ok{color:var(--green)}
+.log{font-family:var(--mono);font-size:.82rem;background:#000;border:1px solid var(--line);padding:12px;max-height:40vh;overflow:auto;white-space:pre-wrap}
+.prog{height:8px;background:var(--panel-2);border:1px solid var(--line)}
+.prog i{display:block;height:100%;background:var(--green);width:0}
+.done{border:2px solid var(--gold);background:var(--gold-soft);padding:16px;display:flex;flex-direction:column;gap:10px}
+.done a{color:var(--gold);font-weight:700;word-break:break-all}
+textarea{font:inherit;color:inherit;background:#000;border:1px solid var(--line);padding:10px;min-height:9em;width:100%}
+[hidden]{display:none!important}
+.pill{font-family:var(--mono);font-size:.72rem;padding:2px 8px;border:1px solid var(--line);border-radius:3px;color:var(--muted)}
+.pill.new{border-color:var(--gold);color:var(--gold)}
+</style></head><body>
+<div class="wrap">
+  <div class="bar"><img src="../img/logotype.png" alt="Black Cactus Studio"><span>Mix room · upload</span></div>
+  <h1>Drop mixes, get a page</h1>
+
+  <section class="card gold" id="tokenCard">
+    <h2>GitHub token</h2>
+    <p class="muted">Paste the "Claude mix room" token once. It stays in this browser only and is never sent anywhere except GitHub.</p>
+    <div class="row"><label>Token<input id="token" type="password" placeholder="github_pat_…"></label><button class="btn primary" id="saveToken">Save and check</button></div>
+    <p class="muted" id="tokenMsg"></p>
+  </section>
+
+  <section class="card" id="bandCard" hidden>
+    <h2>1. Which band?</h2>
+    <div class="row">
+      <label>Existing page<select id="band"><option value="">Loading…</option></select></label>
+      <span class="muted" style="flex:0 0 auto;align-self:center">or new:</span>
+      <label>Artist<input id="artist" placeholder="e.g. THE LAMPLIGHT CLUB"></label>
+      <label>Project<input id="project" placeholder="e.g. ALBUM"></label>
+    </div>
+    <p class="muted">Names go on the page exactly as typed. Check capitals and spelling before you drop files. Picking an existing page ignores the new fields.</p>
+  </section>
+
+  <section class="card" id="dropCard" hidden>
+    <h2>2. Drop the WAVs</h2>
+    <div class="drop" id="drop"><b>Drag WAVs here</b>or tap to choose. One file per track, any file names. Put MASTER in the name for a master.</div>
+    <input id="file" type="file" multiple accept=".wav,.aif,.aiff,.flac,.mp3,audio/*">
+  </section>
+
+  <section class="card" id="checkCard" hidden>
+    <h2>3. Check the track names</h2>
+    <p class="muted">Read from the file names. Fix any spelling here, this is what the band will see. Match a file to a track that already exists to add it as the next mix.</p>
+    <table><thead><tr><th>File</th><th>Track</th><th>Track name on page</th><th>Version</th><th>Bounced</th></tr></thead><tbody id="rows"></tbody></table>
+    <div class="row"><button class="btn green" id="go">Looks right, build the page</button><button class="btn" id="reset">Start again</button></div>
+  </section>
+
+  <section class="card" id="workCard" hidden>
+    <h2>4. Working</h2>
+    <div class="prog"><i id="progBar"></i></div>
+    <div class="log" id="log"></div>
+  </section>
+
+  <section class="done" id="doneCard" hidden>
+    <h2>Done</h2>
+    <p>Page: <a id="pageLink" target="_blank" rel="noopener"></a></p>
+    <p class="muted">GitHub takes about a minute to publish. Open the link, play a track, then send this to the band:</p>
+    <textarea id="msg" readonly></textarea>
+    <div class="row"><button class="btn primary" id="copyMsg">Copy message</button><button class="btn" id="again">Upload more</button></div>
+    <p class="muted">Still to do on the Session Board: log hours, charges and payments for this project. File the WAVs in Drive under ARTIST - PROJECT / NN - TRACK.</p>
+  </section>
+</div>
+
+<script src="lame.min.js"></script>
+<script>
+const OWNER="BlackCactusStudio", REPO="mix-room", SITE="https://blackcactusstudio.github.io/mix-room/";
+const API="https://api.github.com/repos/"+OWNER+"/"+REPO+"/contents/";
+const $=s=>document.querySelector(s);
+const S={token:"",projects:[],files:[],rows:[],page:null,sha:null,slug:"",meta:null};
+
+/* ---------- GitHub ---------- */
+async function gh(method,path,body){
+  const r=await fetch(API+path+(method==="GET"?"?t="+Date.now():""),{method,headers:{Authorization:"Bearer "+S.token,Accept:"application/vnd.github+json","Content-Type":"application/json"},body:body?JSON.stringify(body):undefined});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok&&r.status!==404) throw new Error(method+" "+path+": "+(j.message||r.status));
+  return {status:r.status,data:j};
+}
+async function ghGetText(path){ const {status,data}=await gh("GET",path); if(status===404) return {text:null,sha:null}; return {text:new TextDecoder().decode(Uint8Array.from(atob(data.content.replace(/\n/g,"")),c=>c.charCodeAt(0))),sha:data.sha}; }
+async function ghPut(path,bytesOrText,sha,msg){
+  let b64; if(typeof bytesOrText==="string"){ b64=btoa(unescape(encodeURIComponent(bytesOrText))); } else { let s=""; const u=new Uint8Array(bytesOrText); for(let i=0;i<u.length;i+=0x8000) s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000)); b64=btoa(s); }
+  const body={message:msg||("Mix Room: "+path),content:b64}; if(sha) body.sha=sha;
+  const {data}=await gh("PUT",path,body); return data.content&&data.content.sha;
+}
+async function ghSha(path){ const {status,data}=await gh("GET",path); return status===404?null:data.sha; }
+
+/* ---------- token ---------- */
+try{ S.token=localStorage.getItem("bc-gh-token")||""; }catch{}
+if(S.token){ $("#token").value=S.token; checkToken(); }
+$("#saveToken").onclick=()=>{ S.token=$("#token").value.trim(); try{localStorage.setItem("bc-gh-token",S.token);}catch{} checkToken(); };
+async function checkToken(){
+  const m=$("#tokenMsg"); m.textContent="Checking…"; m.className="muted";
+  try{ const {text}=await ghGetText("projects.json"); S.projects=JSON.parse(text||"[]"); m.textContent="Token works. "+S.projects.length+" band page"+(S.projects.length===1?"":"s")+" found."; m.className="muted ok"; $("#tokenCard").querySelector("h2").textContent="GitHub token (saved)"; fillBands(); $("#bandCard").hidden=false; $("#dropCard").hidden=false; }
+  catch(e){ m.textContent="Token didn't work: "+e.message; m.className="muted err"; }
+}
+function fillBands(){ const s=$("#band"); s.replaceChildren(new Option("New band (type below)","")); for(const p of S.projects) s.append(new Option(p.artist+" · "+p.title,p.slug)); }
+
+/* ---------- names ---------- */
+const slugify=s=>s.toLowerCase().replace(/&/g," and ").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+const norm=s=>s.toUpperCase().replace(/[^A-Z0-9]+/g," ").trim();
+function guessTrack(fn){
+  let s=fn.replace(/\.[^.]+$/,"");
+  s=s.replace(/[_\-\.]+/g," ");
+  s=s.replace(/\b(rough|mix|master|final|bounce|bounced|v\d+|\d{6}|\d{8}|\d{4}\s?\d{2}\s?\d{2}|24bit|16bit|44k|48k|44\.1k|wav)\b/gi," ");
+  s=s.replace(/^\s*\d{1,2}\s+/,"");
+  return norm(s);
+}
+function isMaster(fn){ return /master/i.test(fn); }
+const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const nice=d=>d.getDate()+" "+MON[d.getMonth()];
+const yymmdd=d=>String(d.getFullYear()).slice(2)+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0");
+
+/* ---------- drop ---------- */
+const drop=$("#drop");
+drop.onclick=()=>$("#file").click();
+drop.ondragover=e=>{e.preventDefault();drop.classList.add("over");};
+drop.ondragleave=()=>drop.classList.remove("over");
+drop.ondrop=e=>{e.preventDefault();drop.classList.remove("over");takeFiles([...e.dataTransfer.files]);};
+$("#file").onchange=e=>takeFiles([...e.target.files]);
+
+async function takeFiles(files){
+  files=files.filter(f=>/\.(wav|aif|aiff|flac|mp3)$/i.test(f.name));
+  if(!files.length){ alert("No audio files found."); return; }
+  const slug=$("#band").value; const artist=$("#artist").value.trim(), project=$("#project").value.trim();
+  if(!slug&&!(artist&&project)){ alert("Pick a band, or type the artist and project names."); return; }
+  S.slug=slug||slugify(artist+" "+project);
+  // load existing page
+  const {text,sha}=await ghGetText(S.slug+"/index.html");
+  S.sha=sha; S.page=text;
+  let seed={meta:{},tracks:[],notes:[]};
+  if(text){ const m=text.match(/<script id="seed" type="application\/json">([\s\S]*?)<\/script>/); if(m) seed=JSON.parse(m[1]); }
+  else { seed.meta={key:S.slug,artist,title:project,driveUrl:"",ref:artist,hours:{recording:0,post:0},money:{items:[],gross:0,discount:0,charged:0,paid:0,free:0,owed:0},moneyAsOf:nice(new Date()),downloadsOpen:false,nextSession:null}; }
+  S.seed=seed; S.files=files;
+  S.rows=files.map(f=>{
+    const g=guessTrack(f.name); const d=new Date(f.lastModified);
+    const match=seed.tracks.find(t=>norm(t.name)===g);
+    return {file:f,name:match?match.name:g,trackId:match?match.id:"",master:isMaster(f.name),date:d};
+  });
+  renderRows(); $("#checkCard").hidden=false; $("#checkCard").scrollIntoView({behavior:"smooth"});
+}
+function nextNumber(){ return (S.seed.tracks.reduce((m,t)=>Math.max(m,t.number||0),0))+1; }
+function versionLabel(track,master){
+  const vs=track?track.versions||[]:[]; const kind=master?"Master":"Mix";
+  const n=vs.filter(v=>(v.label||"").startsWith(kind)).length+1;
+  return {label:kind+" "+n,id:(master?"m":"v")+String(n).padStart(2,"0"),order:vs.length+1};
+}
+function renderRows(){
+  const tb=$("#rows"); tb.replaceChildren();
+  S.rows.forEach((r,i)=>{
+    const tr=document.createElement("tr");
+    const sel=document.createElement("select"); sel.append(new Option("New track","")); for(const t of S.seed.tracks) sel.append(new Option(String(t.number).padStart(2,"0")+" "+t.name,t.id)); sel.value=r.trackId;
+    sel.onchange=()=>{ r.trackId=sel.value; const t=S.seed.tracks.find(x=>x.id===r.trackId); if(t) r.name=t.name; renderRows(); };
+    const name=document.createElement("input"); name.value=r.name; name.disabled=!!r.trackId; name.oninput=()=>{r.name=name.value;};
+    const kind=document.createElement("select"); kind.append(new Option("Mix","mix"),new Option("Master","master")); kind.value=r.master?"master":"mix"; kind.onchange=()=>{r.master=kind.value==="master";renderRows();};
+    const t=S.seed.tracks.find(x=>x.id===r.trackId); const v=versionLabel(t,r.master);
+    const date=document.createElement("input"); date.type="date"; date.value=r.date.toISOString().slice(0,10); date.onchange=()=>{ r.date=new Date(date.value+"T12:00:00"); };
+    const td=(k)=>{const c=document.createElement("td");c.append(k);return c;};
+    const pill=document.createElement("span"); pill.className="pill"+(t?"":" new"); pill.textContent=t?"adds "+v.label:"new, "+v.label;
+    tr.append(td(r.file.name+" ("+(r.file.size/1048576).toFixed(0)+" MB)"),td(sel),td(name),td(Object.assign(document.createElement("div"),{})),td(date));
+    tr.children[3].append(kind," ",pill);
+    tb.append(tr);
+  });
+}
+$("#reset").onclick=()=>location.reload();
+
+/* ---------- build ---------- */
+function log(s,cls){ const l=$("#log"); const d=document.createElement("div"); if(cls)d.className=cls; d.textContent=s; l.append(d); l.scrollTop=l.scrollHeight; }
+function prog(f){ $("#progBar").style.width=Math.round(f*100)+"%"; }
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+async function decode(file){
+  const buf=await file.arrayBuffer();
+  const ctx=new OfflineAudioContext(2,44100,44100);
+  return await ctx.decodeAudioData(buf); // resampled to 44.1k
+}
+function peaksOf(ab){
+  const ch=ab.getChannelData(0), N=600, step=Math.floor(ch.length/N)||1, out=[];
+  for(let i=0;i<N;i++){ let m=0; for(let j=i*step;j<(i+1)*step&&j<ch.length;j+=8){ const a=Math.abs(ch[j]); if(a>m)m=a; } out.push(m); }
+  const mx=Math.max(...out)||1; return out.map(x=>+(x/mx).toFixed(3));
+}
+async function encodeMp3(ab,onProg){
+  const L=ab.getChannelData(0), R=ab.numberOfChannels>1?ab.getChannelData(1):L;
+  const enc=new lamejs.Mp3Encoder(2,44100,320); const parts=[]; const BLK=1152*20;
+  const l16=new Int16Array(BLK), r16=new Int16Array(BLK);
+  for(let i=0;i<L.length;i+=BLK){
+    const n=Math.min(BLK,L.length-i);
+    for(let k=0;k<n;k++){ let a=L[i+k],b=R[i+k]; a=a<-1?-1:a>1?1:a; b=b<-1?-1:b>1?1:b; l16[k]=a<0?a*32768:a*32767; r16[k]=b<0?b*32768:b*32767; }
+    const out=enc.encodeBuffer(n===BLK?l16:l16.subarray(0,n),n===BLK?r16:r16.subarray(0,n)); if(out.length) parts.push(out);
+    if((i/BLK)%10===0){ onProg(i/L.length); await sleep(0); }
+  }
+  const end=enc.flush(); if(end.length) parts.push(end);
+  return new Blob(parts,{type:"audio/mpeg"});
+}
+
+$("#go").onclick=async()=>{
+  for(const r of S.rows){ if(!r.trackId&&!r.name.trim()){ alert("Every file needs a track name."); return; } }
+  $("#go").disabled=true; $("#workCard").hidden=false; $("#workCard").scrollIntoView({behavior:"smooth"});
+  try{
+    const seed=S.seed, slug=S.slug, isNew=!S.page;
+    let tpl=S.page;
+    if(isNew){ log("New page. Fetching template…"); tpl=(await ghGetText("_template/index.html")).text; if(!tpl) throw new Error("_template/index.html missing in repo"); }
+    const total=S.rows.length;
+    for(let i=0;i<total;i++){
+      const r=S.rows[i]; const base=i/total;
+      let track=seed.tracks.find(t=>t.id===r.trackId);
+      if(!track){ const num=nextNumber(); track={id:slug.split("-")[0].slice(0,3)+"-"+String(num).padStart(2,"0")+"-"+slugify(r.name),number:num,name:r.name.trim().toUpperCase(),stage:r.master?4:3,versions:[]}; seed.tracks.push(track); }
+      else if(r.master&&track.stage<4) track.stage=4; else if(!r.master&&track.stage<3) track.stage=3;
+      const v=versionLabel(track,r.master);
+      log("Track "+String(track.number).padStart(2,"0")+" "+track.name+": decoding "+r.file.name);
+      const ab=await decode(r.file);
+      log("  "+Math.round(ab.duration)+"s. Encoding 320k MP3 (this is the slow bit)…");
+      const mp3=await encodeMp3(ab,f=>prog(base+(f*0.8)/total));
+      const peaks=peaksOf(ab);
+      const fname="audio/"+String(track.number).padStart(2,"0")+"-"+slugify(track.name)+"-"+(r.master?"master":"mix")+"-"+v.id+".mp3";
+      log("  "+(mp3.size/1048576).toFixed(1)+" MB. Uploading…");
+      const sha=await ghSha(slug+"/"+fname);
+      await ghPut(slug+"/"+fname,await mp3.arrayBuffer(),sha,"Mix Room: "+slug+" "+track.name+" "+v.label);
+      track.versions.push({id:v.id,label:v.label,order:v.order,file:fname,date:nice(r.date),bounced:yymmdd(r.date),duration:Math.round(ab.duration*10)/10,peaks});
+      prog((i+1)/total*0.95);
+    }
+    seed.tracks.sort((a,b)=>a.number-b.number);
+    const seedTag='<script id="seed" type="application/json">'+JSON.stringify(seed).replace(/<\//g,"<\\/")+'<\/script>';
+    let page=tpl.replace(/<script id="seed" type="application\/json">[\s\S]*?<\/script>/,seedTag);
+    page=page.replace(/<title>[^<]*<\/title>/,"<title>"+seed.meta.artist+" · Black Cactus Studio</title>");
+    log("Writing page…");
+    await ghPut(slug+"/index.html",page,S.sha,"Mix Room: "+slug+" page");
+    if(!S.projects.some(p=>p.slug===slug)){ S.projects.push({slug,artist:seed.meta.artist,title:seed.meta.title}); const psha=await ghSha("projects.json"); await ghPut("projects.json",JSON.stringify(S.projects,null,1),psha,"Mix Room: projects index"); }
+    prog(1); log("Done.","ok");
+    const link=SITE+slug+"/"; $("#pageLink").href=link; $("#pageLink").textContent=link;
+    $("#msg").value="Your mixes are ready to listen to 🎵\n\n"+link+"\n\nHit play, and if you hear anything you want changed, click that spot on the waveform and tell us what you're hearing. You'll see what the rest of the band has already said, so if you're thinking the same thing just tap Agree (or Disagree and say why). When you're done, press \"Send notes to the studio\", then Submit on the form that opens (or send them on WhatsApp if that's easier).\n\nAny questions, give me a shout on 07880 354 653.\nAJ, Black Cactus Studio";
+    $("#doneCard").hidden=false; $("#doneCard").scrollIntoView({behavior:"smooth"});
+  }catch(e){ log("FAILED: "+e.message,"err"); $("#go").disabled=false; }
+};
+$("#copyMsg").onclick=async()=>{ try{ await navigator.clipboard.writeText($("#msg").value); $("#copyMsg").textContent="Copied"; }catch{ $("#msg").select(); } };
+$("#again").onclick=()=>location.reload();
+</script>
+</body></html>
