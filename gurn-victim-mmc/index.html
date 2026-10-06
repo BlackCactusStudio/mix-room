@@ -1,0 +1,614 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Gurn Victim Mix Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@500&display=swap">
+<style>
+/* Black Cactus house style: the studio's dark site look. Logotype top left, artist name big in Bebas, one card per track like a channel strip. Green = progress and play, gold = timestamps and notes. */
+:root{
+  --black:#0c0c0c; --bg:#0c0c0c; --panel:#141414; --panel-2:#1c1c1c; --line:#262626;
+  --fg:#f2f0ea; --muted:#9a978f; --green:#2d6a4f; --green-light:#40916c; --gold:#c9a84c; --gold-soft:rgba(201,168,76,.12);
+  --accent:var(--gold); --accent-soft:var(--gold-soft); --wave:#3a3a37; --done:#40916c; --done-soft:rgba(64,145,108,.14); --danger:#e57368;
+  --display:"Bebas Neue","Arial Narrow",Impact,sans-serif;
+  --body:"DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"DM Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:3px; color-scheme:dark;
+}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.5;font-size:15px;padding-inline:clamp(16px,4vw,48px);padding-block:20px 72px}
+.wrap{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.bar img{height:44px;width:auto;display:block}
+.bar span{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;padding-top:18px}
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--green-light)}
+h1{margin:6px 0 0;font-family:var(--display);font-weight:400;font-size:clamp(3rem,9vw,6rem);line-height:.88;letter-spacing:.01em;text-wrap:balance}
+h1 em{display:block;font-style:normal;color:var(--gold);font-size:.5em;line-height:1.1;margin-top:6px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel-2);padding:9px 16px;border-radius:var(--r);font-weight:500;text-decoration:none;white-space:nowrap;font-size:.9rem}
+.btn:hover{border-color:var(--gold)}
+a.btn{color:var(--fg)}
+a.btn.primary,a.btn.green{color:#16130a}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:#16130a;font-weight:700}
+.btn.small{padding:4px 10px;font-size:.8rem}
+.btn.ok{background:var(--green-light);border-color:var(--green-light);color:#06120c;font-weight:700}
+.help{color:var(--muted);margin:0;max-width:60ch}
+.help b{color:var(--fg);font-weight:500}
+.you{display:flex;gap:10px;align-items:center;font-size:.85rem;color:var(--muted);flex-wrap:wrap}
+.you input{width:14em}
+
+.track{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:var(--r);padding:18px 20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.thead{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline}
+.thead .n{font-family:var(--display);font-size:2.2rem;line-height:1;color:var(--green-light);font-variant-numeric:tabular-nums}
+.thead h2{margin:0;font-family:var(--display);font-weight:400;font-size:2.2rem;line-height:1;letter-spacing:.02em}
+.thead .sp{flex:1}
+.prog{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.segs{display:flex;gap:3px}
+.segs i{display:block;width:24px;height:6px;background:var(--panel-2);border:1px solid var(--line)}
+.segs i.d{background:var(--green-light);border-color:var(--green-light)}
+.segs i.c{background:transparent;border:1px solid var(--gold)}
+.segs.so i{background:var(--gold);border-color:var(--gold)}
+.prog span{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.prog span b{color:var(--fg);font-weight:500}
+
+.player{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center}
+.play{width:52px;height:52px;border-radius:50%;border:0;background:var(--green-light);color:#06120c;display:grid;place-items:center}
+.play:hover{background:var(--gold)}
+.play svg{width:18px;height:18px;fill:currentColor}
+.wavebox{position:relative;min-width:0}
+canvas.wave{display:block;width:100%;height:76px;cursor:crosshair;background:var(--black)}
+.marks{position:relative;height:14px;margin-top:4px}
+.mk{position:absolute;top:0;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;background:var(--gold);border:2px solid var(--panel);padding:0}
+.mk.r{background:var(--muted)}
+.times{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.74rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.vrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.85rem;color:var(--muted)}
+select,input,textarea{background:var(--black);border:1px solid var(--line);border-radius:var(--r);padding:8px 10px;font-size:.92rem;box-sizing:border-box}
+.compose{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start}
+.compose .at{font-family:var(--mono);font-size:.85rem;padding:9px 10px;border:1px solid var(--gold);border-radius:var(--r);color:var(--gold);background:var(--gold-soft);font-variant-numeric:tabular-nums;white-space:nowrap}
+.compose textarea{width:100%;min-height:44px;resize:vertical}
+.notes{display:flex;flex-direction:column}
+.note{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;padding:10px 0;border-top:1px solid var(--line)}
+.note .t{all:unset;cursor:pointer;font-family:var(--mono);font-size:.82rem;color:var(--gold);font-variant-numeric:tabular-nums;padding-top:2px}
+.note .t:hover{text-decoration:underline}
+.note p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;min-width:0}
+.note small{display:block;color:var(--muted);font-size:.74rem;font-family:var(--mono);margin-top:2px}
+.note.res p{color:var(--muted);text-decoration:line-through}
+.note .tick{font-size:.76rem;white-space:nowrap;display:flex;gap:4px;align-items:center;color:var(--muted)}
+.muted{color:var(--muted);font-size:.88rem;margin:0}
+.how{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);padding:16px 18px}
+.how h2{margin:0 0 8px;font-family:var(--display);font-weight:400;font-size:1.7rem;letter-spacing:.03em}
+.how ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:10px}
+.how li{color:var(--muted)} .how li b{color:var(--fg)}
+.how .you{margin-top:8px} .how .you input{width:100%;max-width:22em;font-size:1rem;padding:12px}
+.atlbl{grid-column:1/-1;font-size:.9rem;color:var(--muted)}
+.atlbl .at{display:inline-block;margin:0 2px} .atlbl small{font-size:.8rem}
+.compose{grid-template-columns:1fr auto!important}
+.btn.save{background:var(--green-light);border-color:var(--green-light);color:#06120c;min-height:46px}
+.rm{all:unset;cursor:pointer;font-size:.8rem;color:var(--muted);padding:4px 6px}
+.rm:hover{color:var(--danger)}
+.approve{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:.85rem;color:var(--muted);padding-top:10px;border-top:1px dashed var(--line)}
+.lnk{all:unset;cursor:pointer;color:var(--green-light);text-decoration:underline;font-weight:600}
+.lnk.mute{color:var(--muted)}
+.lnk:focus-visible{outline:2px solid var(--gold)}
+.sendtrack{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding:14px;border:2px solid var(--gold);background:var(--gold-soft);border-radius:var(--r)}
+.sendtrack>div{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 14em}
+.sendtrack b{color:var(--gold);font-size:1rem}
+.sendtrack span{color:var(--fg);font-size:.88rem}
+.sendtrack .btn{min-height:48px;font-size:1.05rem;padding:10px 20px}
+@media (max-width:560px){ .sendtrack .btn{width:100%;justify-content:center} }
+.sendbar{position:fixed;left:0;right:0;bottom:0;z-index:9;display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:#141414;border-top:2px solid var(--gold);box-shadow:0 -6px 24px rgba(0,0,0,.6)}
+.sendbar span{font-weight:600;color:var(--fg);font-size:.95rem}
+.sendbar .btn{min-height:46px;font-size:1rem}
+.localp.flash{box-shadow:0 0 0 3px var(--gold)}
+.localp{position:static!important}
+.play.loading{background:var(--panel-2)}
+.spin{width:18px;height:18px;border:3px solid var(--muted);border-top-color:var(--gold);border-radius:50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+body{padding-bottom:110px}
+@media (max-width:560px){ .compose{grid-template-columns:1fr!important} .btn.save{width:100%} .player{grid-template-columns:auto 1fr} canvas.wave{height:84px} .mk{width:16px;height:16px} .sendbar span{font-size:.85rem} .btn{min-height:44px} .how h2{font-size:1.5rem} }
+.signoff{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--green);background:var(--done-soft)}
+.signoff p{margin:0;font-size:.9rem}
+.empty{background:var(--panel);border:1px dashed var(--line);padding:28px}
+.empty h2{margin:0 0 6px;font-family:var(--display);font-weight:400;font-size:2rem}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--gold);color:#16130a;font-weight:500;padding:10px 16px;border-radius:var(--r);font-size:.9rem;z-index:10;max-width:calc(100vw - 32px)}
+[hidden]{display:none!important}
+.bal{border:1px solid var(--line);background:var(--panel);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.bnums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px}
+.bnums div{background:var(--panel-2);padding:8px 12px}
+.bnums span{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.bnums b{font-family:var(--display);font-weight:400;font-size:1.8rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.bnums .owe b{color:var(--gold)} .bnums .ok b{color:var(--green-light)}
+.bpay{margin:0;color:var(--muted);font-size:.9rem}
+.bpay b{color:var(--fg);font-weight:500;user-select:all}
+.basof{color:var(--muted);font-family:var(--mono);font-size:.7rem}
+.bank{border:1px solid var(--line);background:var(--black);padding:4px 14px 8px;max-width:520px}
+.bank-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:10px 0 6px;border-bottom:1px solid var(--line)}
+.bank-h span{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.bank-h small{color:var(--muted);font-size:.8rem}
+.brow{display:grid;grid-template-columns:7.5em 1fr auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.brow:last-child{border-bottom:0}
+.brow span{color:var(--muted);font-size:.85rem}
+.brow b{font-family:var(--mono);font-weight:500;font-size:1rem;letter-spacing:.04em;font-variant-numeric:tabular-nums;user-select:all;overflow-wrap:anywhere}
+.cp{all:unset;cursor:pointer;font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);padding:4px 8px;border:1px solid var(--line)}
+.cp:hover{border-color:var(--gold)}
+.cp:focus-visible{outline:2px solid var(--gold)}
+.hours{margin:0;color:var(--muted)}
+.hours .avg{color:var(--gold)}
+.hours b{font-family:var(--display);font-weight:400;font-size:1.6rem;color:var(--green-light);letter-spacing:.02em}
+.items{display:flex;flex-direction:column}
+.item{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:baseline;padding:8px 0;border-top:1px solid var(--line)}
+.item .iw{min-width:0}
+.item s{color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums}
+.item b{font-weight:500;font-variant-numeric:tabular-nums}
+.item b.onus{color:var(--gold);font-family:var(--mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}
+.saved{margin:0;padding:10px 12px;border:1px solid var(--gold);background:var(--gold-soft);color:var(--fg)}
+.saved b{color:var(--gold)}
+.dlbox{display:flex;flex-direction:column;gap:10px;padding-top:4px}
+.early{display:flex;flex-wrap:wrap;gap:8px}
+.nexts{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;border:1px solid var(--green);border-left:3px solid var(--green-light);background:var(--done-soft);padding:14px 16px}
+.nexts>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.nexts .nk{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--green-light)}
+.nexts .nd{font-family:var(--display);font-weight:400;font-size:1.9rem;line-height:1.05;letter-spacing:.02em}
+.nexts .nt{color:var(--muted)}
+.bhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.bhead b{font-family:var(--display);font-weight:400;font-size:1.5rem;letter-spacing:.02em}
+.thanks{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px;margin-top:8px}
+.thanks section{background:var(--panel);border:1px solid var(--line);padding:22px;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.thanks section.love{border-color:var(--gold);background:linear-gradient(180deg,var(--gold-soft),transparent 70%),var(--panel)}
+.thanks h2{margin:0;font-family:var(--display);font-weight:400;font-size:2rem;line-height:1;letter-spacing:.02em}
+.thanks p{margin:0;color:var(--muted);max-width:52ch}
+.thanks p b{color:var(--fg);font-weight:500}
+.thanks .sig{font-family:var(--mono);font-size:.78rem;color:var(--gold);letter-spacing:.06em}
+.thanks .row2{display:flex;flex-wrap:wrap;gap:8px}
+.btn.green{background:var(--green-light);border-color:var(--green-light);color:#06120c;font-weight:700}
+.ro .needs-write{display:none!important}
+.localp{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;background:var(--panel-2);border:1px solid var(--gold);border-radius:var(--r);padding:14px 16px;position:sticky;top:env(safe-area-inset-top,0px);z-index:2}
+.localp b{font-family:var(--display);font-weight:400;font-size:1.5rem;letter-spacing:.02em}
+.localp p{margin:0}
+.localp pre{flex-basis:100%;margin:0;white-space:pre-wrap;font-family:var(--mono);font-size:.8rem;background:var(--black);border:1px solid var(--line);padding:10px;max-height:40vh;overflow:auto;user-select:all}
+.btn:disabled,.btn[aria-disabled="true"]{opacity:.45;cursor:default;pointer-events:none}
+.sendrow{display:flex;gap:8px;flex-wrap:wrap}
+.sendhelp{flex-basis:100%}
+.prefer{flex-basis:100%;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:12px}
+.prefer p{margin:0;color:var(--muted);font-size:.9rem}
+.prefer p b{color:var(--fg);font-family:var(--body);font-weight:600;font-size:inherit;letter-spacing:0}
+.sendhelp b{color:var(--gold)}
+footer{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);padding-top:18px;margin-top:10px}
+footer img{height:28px;width:auto}
+footer .addr{flex:1;min-width:14em}
+@media (max-width:560px){ .brow{grid-template-columns:5.5em 1fr auto} .brow b{font-size:.92rem;letter-spacing:0} .bank-h{flex-direction:column;gap:2px} .compose{grid-template-columns:1fr} .thead h2,.thead .n{font-size:1.8rem} .segs i{width:16px} .bar img{height:34px} }
+
+/* Band notes: see what the others said, agree or disagree */
+.note.shared{background:transparent}
+.note .who{color:var(--fg)}
+.rx{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:8px}
+.rx .btn{padding:6px 12px;font-size:.85rem;min-height:36px}
+.rx .btn.on-agree{background:var(--green-light);border-color:var(--green-light);color:#06120c}
+.rx .btn.on-dis{background:var(--danger);border-color:var(--danger);color:#16130a}
+.rx .cnt{font-size:.85rem;color:var(--muted)}
+.rx .cnt b{color:var(--fg);font-weight:600}
+.rx .pend{font-size:.82rem;color:var(--gold)}
+.rxwhy{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;width:100%}
+.rxwhy input{flex:1 1 14em;min-width:0}
+.saidhint{margin:0 0 4px;font-size:.9rem;color:var(--gold)}
+
+/* Legibility boost (AJ request): heavier, bigger, brighter text */
+:root{--muted:#c4c0b6;--line:#333}
+body{font-size:16.5px;font-weight:500;-webkit-font-smoothing:antialiased}
+.help,.muted,.bpay,.prefer p,.note small,.times,.prog span,.eyebrow,.bar span,footer{font-weight:500}
+.btn{font-weight:700}
+.note p,.fx{font-weight:500}
+.thead h2,h1,.thanks h2,.empty h2,.bhead b,.localp b{letter-spacing:.03em}
+.times,.note .t,.compose .at,.prog span,.brow b,.cp,.eyebrow{font-weight:500}
+</style>
+
+<div class="wrap">
+  <div class="bar"><img src="img/logotype.png" alt="Black Cactus Studio"><span>Mix room</span></div>
+  <header class="top">
+    <div>
+      <div class="eyebrow">Your mixes</div>
+      <h1 id="ptitle">Loading</h1>
+    </div>
+    <a class="btn primary" id="dl" href="#" target="_blank" rel="noopener" hidden>Download WAVs ↗</a>
+  </header>
+  <section class="how">
+    <h2>How to leave notes</h2>
+    <ol>
+      <li><b>Put your name in</b> so we know who's talking.<div class="you needs-write"><input id="me" maxlength="40" placeholder="Your name, e.g. Sam (vocals)" aria-label="Your name"></div></li>
+      <li><b>Play a song and tap the waveform</b> where you hear something. You can tap anywhere to jump around.</li>
+      <li><b>Type what you're hearing</b> and tap <b>Save note</b>. Do this as many times as you like.</li>
+      <li><b>Check what the rest of the band said first.</b> If someone's already said it, just tap <b>Agree</b> (or <b>Disagree</b> and say why) instead of writing it again.</li>
+      <li><b>When you're finished, tap the gold "Send my notes" button</b> at the bottom of your screen, then press <b>Submit</b> on the form that opens.</li>
+    </ol>
+  </section>
+  <main id="tracks" style="display:flex;flex-direction:column;gap:18px"></main>
+  <section id="localPanel" class="localp" hidden>
+    <div><b>Send your notes</b><p class="muted" id="localCount"></p></div>
+    <div class="sendrow"><a class="btn primary" id="sendNotes" href="#" target="_blank" rel="noopener" aria-disabled="true">Send my notes to the studio ↗</a></div>
+    <p class="muted sendhelp" id="sendHelp" hidden>A Google Form opens with your notes filled in. Check them, then press <b>Submit</b>. That's it, they're with us.</p>
+    <div class="prefer">
+      <p><b>Prefer to message?</b> Send all your notes in one go on WhatsApp, or copy them and paste them wherever you like.</p>
+      <div class="sendrow">
+        <a class="btn green" id="waNotes" href="#" target="_blank" rel="noopener" aria-disabled="true">Send on WhatsApp ↗</a>
+        <button class="btn" id="copyNotes" type="button" disabled>Copy all notes</button>
+      </div>
+    </div>
+    <pre id="notesOut" hidden></pre>
+  </section>
+
+  <section id="nextSess" class="nexts" hidden></section>
+  <section id="balance" class="bal" hidden></section>
+  <div class="thanks">
+    <section class="love">
+      <h2>Thank you</h2>
+      <p>It means the world to me to work on your music together. If you get a spare minute, a quick Google review really helps a small studio like ours get found by other bands.</p>
+      <a class="btn primary" href="https://www.google.com/maps/search/?api=1&amp;query=Black+Cactus+Studio+Great+Bromley" target="_blank" rel="noopener" id="reviewLink">Leave us a Google review ↗</a>
+      <span class="sig">AJ, Black Cactus Studio</span>
+    </section>
+    <section>
+      <h2>Book your next rehearsal</h2>
+      <p>Get the songs tight before the next session. Three rooms, backline and PA included. <b>By appointment only.</b></p>
+      <div class="row2">
+        <a class="btn green" href="https://wa.me/447880354653?text=Hi%20AJ%2C%20I%27d%20like%20to%20book%20a%20rehearsal%20at%20Black%20Cactus" target="_blank" rel="noopener">Book on WhatsApp ↗</a>
+        <a class="btn" href="https://blackcactusstudio.co.uk/" target="_blank" rel="noopener">Rehearsal rooms ↗</a>
+      </div>
+      <p>Or call or text AJ on <b>07880 354 653</b></p>
+    </section>
+  </div>
+  <footer><img src="img/mark.png" alt=""><span class="addr">Black Cactus Studio · Unit 6, Hazelwood Estate, Great Bromley, Essex CO7 7FA</span><span>07880 354 653</span><span>info@blackcactusstudio.co.uk</span></footer>
+</div>
+<audio id="audio" preload="none"></audio>
+<script id="seed" type="application/json">{"meta":{"key":"gurn-victim-mmc","artist":"GURN VICTIM","title":"MONSTER MASH / CARSICK","ref":"GURN VICTIM","driveUrl":"https://drive.google.com/drive/folders/1QfVDPKmI3ifkhWbsJXdM03yJbTStnEB4","hours":{"recording":8,"post":4},"money":{"items":[{"desc":"Recording, full day (8 hrs)","qty":1,"rate":250,"discount":50},{"desc":"Edit, mix and master per song","qty":2,"rate":100,"discount":200}],"gross":450,"discount":250,"charged":200,"paid":200,"free":0,"owed":0},"moneyAsOf":"1 Oct"},"tracks":[{"id":"gvm-monster-mash","number":1,"name":"MONSTER MASH","stage":5,"versions":[{"id":"v01","label":"Mix 1","order":1,"file":"audio/01-monster-mash-mix-v01.mp3","date":"30 Sep","duration":180.65,"peaks":[0.442,0.339,0.397,0.299,0.313,0.326,0.342,0.353,0.324,0.352,0.326,0.318,0.323,0.416,0.33,0.337,0.352,0.382,0.355,0.33,0.437,0.333,0.349,0.319,0.308,0.375,0.313,0.343,0.328,0.344,0.367,0.391,0.332,0.362,0.324,0.333,0.304,0.389,0.299,0.309,0.855,0.847,0.87,0.872,0.888,0.878,0.864,0.873,0.877,0.893,0.879,0.875,0.851,0.861,0.853,0.883,0.857,0.861,0.849,0.855,0.852,0.818,0.838,0.833,0.861,0.699,0.885,0.796,0.852,0.846,0.871,0.835,0.877,0.997,0.836,0.92,0.913,0.911,0.85,0.818,0.853,0.838,0.868,0.908,0.875,0.869,0.863,0.854,0.848,0.842,0.82,0.869,0.862,0.823,0.747,0.867,0.788,0.876,0.797,0.864,0.83,0.884,0.923,0.849,0.908,0.888,0.901,0.883,0.888,0.893,0.903,0.864,0.913,0.914,0.885,0.909,0.879,0.838,0.892,0.946,0.868,0.836,0.884,0.911,0.885,0.928,1.0,0.876,0.948,0.884,0.902,0.841,0.905,0.89,0.867,0.819,0.849,0.955,0.852,0.873,0.854,0.866,0.876,0.887,0.925,0.871,0.861,0.862,0.887,0.846,0.877,0.898,0.87,0.909,0.909,0.904,0.877,0.874,0.896,0.894,0.876,0.898,0.896,0.823,0.857,0.868,0.845,0.969,0.875,0.936,0.877,0.874,0.918,0.919,0.863,0.943,0.933,0.874,0.959,0.86,0.884,0.902,0.868,0.971,0.844,0.867,0.847,0.902,0.852,0.887,0.878,0.886,0.907,0.899,0.875,0.887,0.819,0.864,0.845,0.966,0.836,0.893,0.888,0.88,0.87,0.886,0.876,0.837,0.803,0.886,0.887,0.892,0.89,0.839,0.894,0.813,0.882,0.872,0.926,0.833,0.909,0.859,0.892,0.879,0.834,0.909,0.867,0.873,0.833,0.868,0.866,0.858,0.825,0.875,0.888,0.894,0.92,0.885,0.887,0.908,0.853,0.832,0.879,0.815,0.857,0.847,0.862,0.866,0.846,0.824,0.842,0.846,0.849,0.836,0.85,0.822,0.932,0.862,0.867,0.866,0.861,0.842,0.894,0.824,0.867,0.888,0.851,0.914,0.927,0.944,0.893,0.86,0.851,0.868,0.851,0.883,0.9,0.856,0.896,0.877,0.84,0.893,0.901,0.891,0.877,0.905,0.895,0.879,0.854,0.883,0.863,0.868,0.81,0.872,0.88,0.867,0.897,0.883,0.929,0.817,0.869,0.892,0.888,0.929,0.877,0.854,0.898,0.833,0.836,0.863,0.862,0.826,0.876,0.853,0.852,0.849,0.872,0.85,0.826,0.827,0.882,0.878,0.904,0.84,0.874,0.885,0.838,0.899,0.851,0.886,0.862,0.852,0.822,0.842,0.869,0.88,0.865,0.87,0.864,0.849,0.905,0.916,0.873,0.895,0.858,0.882,0.874,0.769,0.885,0.872,0.89,0.874,0.848,0.843,0.905,0.848,0.873,0.973,0.878,0.819,0.864,0.872,0.927,0.889,0.882,0.907,0.857,0.875,0.867,0.866,0.883,0.835,0.849,0.857,0.874,0.846,0.856,0.822,0.878,0.876,0.869,0.855,0.832,0.86,0.854,0.902,0.855,0.831,0.886,0.86,0.895,0.835,0.851,0.939,0.889,0.804,0.916,0.806,0.897,0.845,0.85,0.866,0.903,0.881,0.906,0.887,0.911,0.872,0.863,0.88,0.842,0.863,0.848,0.897,0.852,0.834,0.833,0.893,0.855,0.854,0.888,0.889,0.89,0.855,0.886,0.929,0.87,0.916,0.838,0.888,0.849,0.877,0.911,0.866,0.863,0.934,0.873,0.908,0.908,0.9,0.913,0.865,0.869,0.879,0.83,0.868,0.855,0.911,0.939,0.841,0.862,0.881,0.86,0.827,0.874,0.842,0.924,0.858,0.883,0.927,0.849,0.873,0.915,0.866,0.863,0.928,0.836,0.854,0.869,0.829,0.863,0.914,0.869,0.9,0.934,0.94,0.899,0.874,0.875,0.908,0.848,0.912,0.894,0.938,0.902,0.864,0.85,0.856,0.928,0.864,0.862,0.849,0.905,0.927,0.905,0.927,0.885,0.912,0.871,0.844,0.829,0.888,0.863,0.87,0.842,0.861,0.884,0.892,0.911,0.86,0.88,0.879,0.908,0.865,0.884,0.866,0.852,0.856,0.831,0.903,0.836,0.838,0.832,0.872,0.887,0.821,0.886,0.864,0.824,0.85,0.868,0.882,0.89,0.84,0.894,0.911,0.886,0.853,0.91,0.836,0.897,0.789,0.851,0.736,0.836,0.85,0.851,0.885,0.907,0.817,0.826,0.837,0.853,0.848,0.848,0.863,0.853,0.833,0.861,0.858,0.89,0.85,0.887,0.94,0.483,0.344,0.853,0.872,0.723,0.585,0.488,0.508,0.517,0.47,0.433,0.369,0.33,0.287,0.303,0.3,0.263,0.307,0.044,0.013,0.007,0.005,0.003,0.002,0.002,0.001,0.001,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]}]},{"id":"gvm-carsick","number":2,"name":"CARSICK","stage":5,"versions":[{"id":"v01","label":"Mix 1","order":1,"file":"audio/02-carsick-mix-v01.mp3","date":"30 Sep","duration":230.4,"peaks":[0.0,0.751,0.724,0.781,0.622,0.805,0.689,0.667,0.732,0.68,0.719,0.706,0.721,0.683,0.839,0.912,0.839,0.92,0.796,0.847,0.865,0.836,0.837,0.786,0.83,0.833,0.838,0.816,0.845,0.91,0.846,0.834,0.835,0.815,0.761,0.892,0.858,0.872,0.837,0.763,0.825,0.829,0.964,0.803,0.838,0.883,0.819,0.832,0.878,0.947,0.939,0.997,0.812,0.879,0.817,0.891,0.859,0.948,0.895,0.77,0.862,0.832,0.892,0.854,0.96,0.825,0.933,0.864,0.815,0.912,0.89,0.849,0.912,0.967,0.909,0.844,0.861,0.916,0.928,0.818,0.943,0.943,0.831,0.972,0.933,0.929,0.859,0.892,0.809,0.862,0.869,0.773,0.916,0.902,0.863,0.94,0.919,0.793,0.895,0.979,0.87,0.89,0.903,0.964,0.905,0.923,1.0,0.952,0.91,0.892,0.85,0.903,0.938,0.888,0.876,0.931,0.907,0.923,0.899,0.938,0.922,0.894,0.861,0.927,0.923,0.878,0.895,0.959,0.862,0.916,0.947,0.913,0.889,0.966,0.971,0.889,0.914,0.948,0.888,0.911,0.899,0.904,0.879,0.924,0.936,0.929,0.931,0.813,0.9,0.824,0.973,0.907,0.872,0.885,0.855,0.876,0.886,0.893,0.962,0.942,0.863,0.899,0.869,0.951,0.909,0.881,0.923,0.923,0.917,0.932,0.882,0.879,0.938,0.864,0.909,0.827,0.956,0.869,0.871,0.991,0.845,1.0,0.89,0.944,0.915,0.896,0.852,0.864,0.845,0.909,0.886,0.944,0.954,0.802,0.934,0.891,0.859,0.826,0.91,0.841,0.861,0.852,0.799,0.965,0.877,0.897,0.807,0.908,0.912,0.882,0.895,0.887,0.905,0.91,0.927,0.845,0.874,0.884,0.872,0.834,0.887,0.95,0.855,0.856,0.949,0.947,0.945,0.876,0.957,0.94,0.914,0.897,0.946,0.9,0.881,0.941,0.907,0.885,0.955,0.886,0.943,0.951,0.912,0.957,0.927,0.877,0.926,0.907,0.843,0.91,0.906,0.978,0.902,0.9,0.952,0.888,0.966,0.904,0.873,0.933,0.915,0.902,0.933,0.905,0.958,0.883,0.91,0.934,0.962,0.905,0.949,0.942,0.882,0.919,0.953,0.894,0.84,0.861,0.902,0.864,0.923,0.885,0.866,0.911,0.82,0.88,0.834,0.919,0.847,0.889,0.882,0.848,0.935,0.839,0.888,0.964,0.83,0.867,0.979,0.824,0.864,0.917,0.825,0.896,0.857,0.909,0.792,0.71,0.687,0.567,0.575,0.568,0.478,0.379,0.818,0.792,0.803,0.812,0.843,0.754,0.828,0.763,0.852,0.846,0.856,0.829,0.864,0.869,0.808,0.833,0.88,0.921,0.882,0.778,0.773,0.777,0.844,0.84,0.867,0.906,0.8,0.899,0.838,0.764,0.766,0.823,0.811,0.78,0.837,0.816,0.825,0.809,0.886,0.82,0.874,0.934,0.874,0.849,0.901,0.777,0.793,0.836,0.852,0.865,0.882,0.83,0.868,0.845,0.83,0.837,0.9,0.889,0.856,0.92,0.844,0.845,0.901,0.866,0.941,0.886,0.846,0.906,0.927,0.824,0.875,0.832,0.906,0.861,0.849,0.843,0.921,0.922,0.879,0.945,0.911,0.933,0.84,0.928,0.806,0.948,0.921,0.9,0.908,0.948,0.872,0.883,0.833,0.834,0.854,0.916,0.914,0.857,0.893,0.906,0.928,0.841,0.985,0.851,0.89,0.867,0.952,0.891,0.891,0.893,0.89,0.911,0.907,0.943,0.835,0.986,0.868,0.945,0.943,0.891,0.965,0.825,0.896,0.907,0.967,0.918,0.917,0.941,0.9,0.948,0.929,0.955,0.906,0.957,0.913,0.835,0.887,0.95,0.937,0.94,0.922,0.911,0.922,0.869,0.914,0.916,0.928,0.934,0.914,0.893,0.888,0.945,0.913,0.902,0.898,0.889,0.888,0.886,0.904,0.97,0.925,0.963,0.935,0.923,0.942,0.903,0.858,0.972,0.933,0.948,0.894,0.91,0.927,0.892,0.857,0.945,0.928,0.903,0.854,0.951,0.922,0.954,0.898,0.87,0.84,0.898,0.914,0.887,0.841,0.986,0.858,0.833,0.929,0.898,0.916,0.94,0.889,0.95,0.97,0.852,0.9,0.836,0.889,0.939,0.836,0.906,0.797,0.934,0.853,0.918,0.912,0.948,0.862,0.906,0.895,0.883,0.945,0.883,0.862,0.818,0.958,0.869,0.943,0.835,0.919,0.799,0.982,0.907,0.91,0.853,0.955,0.858,0.861,0.955,0.813,0.991,0.927,0.912,0.829,0.891,0.883,0.858,0.842,0.909,0.758,0.768,0.757,0.616,0.585,0.581,0.548,0.621,0.569,0.536,0.462,0.459,0.48,0.386,0.47,0.359,0.394,0.358,0.351,0.407,0.351,0.415,0.131,0.143,0.128,0.12,0.131,0.103,0.112,0.113,0.101,0.085,0.094,0.031,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]}]}]}</script>
+<div class="toast" id="toast" hidden></div>
+<div class="sendbar" id="sendBar" hidden><span id="sendBarTxt"></span><a class="btn primary" id="sendBarBtn" href="#localPanel">Send my notes ↗</a></div>
+
+<script>
+const STAGES=["Pre-pro","Recording","Edit","Mix","Master","Sign-off"];
+const $=s=>document.querySelector(s);
+const A=$("#audio");
+const S={draft:{},db:null,meta:null,tracks:[],notes:[],signoffs:{},sel:{},playing:null,pendingAt:{},canWrite:true,peaks:{},rx:{},rxOpen:null};
+const same=(a,b)=>String(a||"").trim().toLowerCase()===String(b||"").trim().toLowerCase();
+function rxCount(){ return Object.keys(S.rx).length; }
+function rxLine(n,r){ return (r.kind==="agree"?"AGREE ":"DISAGREE ")+n.versionLabel+" @ "+fmt(n.time)+" ("+(n.by||"Someone")+")"+(r.why?" - "+r.why.replace(/\s*\n\s*/g," "):""); }
+
+function el(tag,attrs={},...kids){const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs)){if(v==null||v===false)continue;if(k==="class")e.className=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v===true?"":v);}for(const k of kids.flat()){if(k==null||k===false)continue;e.append(k.nodeType?k:document.createTextNode(String(k)));}return e;}
+function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,3200);}
+function fmt(s){s=Math.max(0,s||0);const m=Math.floor(s/60),x=Math.floor(s%60);return m+":"+String(x).padStart(2,"0");}
+function safeUrl(u){try{const x=new URL(u);return x.protocol==="https:"?x.href:null;}catch{return null;}}
+function fdate(ms){return ms?new Date(ms).toLocaleDateString("en-GB",{day:"numeric",month:"short"}):"";}
+function versionsOf(t){return (t.versions||[]).slice().sort((a,b)=>(b.order||0)-(a.order||0));}
+function curVersion(t){const vs=versionsOf(t);return vs.find(v=>v.id===S.sel[t.id])||vs[0]||null;}
+async function write(fn,msg){if(S.local){return false;}if(!S.db){toast("Sign in to Claude to leave notes.");return false;}try{await fn(S.db);if(msg)toast(msg);return true;}catch(e){toast(e&&e.code==="invalid_argument"?"Your access is view-only, so notes can't be saved. Ask the studio for edit access.":"Couldn't save. Check your connection and try again.");return false;}}
+
+/* ---------- waveform ---------- */
+async function getPeaks(v){
+  if(v.peaks&&v.peaks.length) return v.peaks;
+  if(S.peaks[v.file]) return S.peaks[v.file];
+  try{
+    const buf=await (await fetch(v.file)).arrayBuffer();
+    const ctx=new OfflineAudioContext(1,44100,44100);
+    const ab=await ctx.decodeAudioData(buf);const ch=ab.getChannelData(0);const N=600,step=Math.floor(ch.length/N)||1;const out=[];
+    for(let i=0;i<N;i++){let m=0;for(let j=i*step;j<(i+1)*step&&j<ch.length;j+=8){const a=Math.abs(ch[j]);if(a>m)m=a;}out.push(+m.toFixed(3));}
+    const mx=Math.max(...out)||1;S.peaks[v.file]=out.map(x=>x/mx);return S.peaks[v.file];
+  }catch{return null;}
+}
+function drawWave(canvas,peaks,prog){
+  const dpr=window.devicePixelRatio||1,w=canvas.clientWidth,h=canvas.clientHeight;if(!w)return;
+  canvas.width=w*dpr;canvas.height=h*dpr;const c=canvas.getContext("2d");c.scale(dpr,dpr);
+  const cs=getComputedStyle(document.documentElement);const base=cs.getPropertyValue("--wave").trim(),acc=cs.getPropertyValue("--green-light").trim();
+  if(!peaks){c.fillStyle=base;c.fillRect(0,h/2-1,w,2);if(prog>0){c.fillStyle=acc;c.fillRect(0,h/2-1,w*prog,2);}return;}
+  const bw=3,gap=1,n=Math.floor(w/(bw+gap));
+  for(let i=0;i<n;i++){const p=peaks[Math.floor(i/n*peaks.length)]||0;const bh=Math.max(2,p*(h-8));c.fillStyle=(i/n)<prog?acc:base;c.fillRect(i*(bw+gap),(h-bh)/2,bw,bh);}
+}
+
+/* ---------- render ---------- */
+function render(){
+  const m=S.meta||{};
+  $("#ptitle").replaceChildren(document.createTextNode(m.artist||"Your project"),el("em",{},m.title||""));
+  const mm=m.money||{}; const paidUp=((mm.charged>0)||(mm.items||[]).length)&&(mm.owed||0)<=0;
+  const dl=(m.downloadsOpen||paidUp)?safeUrl(m.driveUrl):null;$("#dl").hidden=!dl;if(dl)$("#dl").href=dl;
+  renderLocalPanel(); renderBalance(m); renderNext(m);
+  if(m.artist) document.title=(m.artist+" · Black Cactus Studio");
+  const box=$("#tracks");
+  if(!S.tracks.length){box.replaceChildren(el("div",{class:"empty"},el("h2",{},"Mixes on the way"),el("p",{class:"muted"},"As soon as we bounce a mix it lands here, ready to play.")));return;}
+  const ae=document.activeElement, aeId=ae&&ae.id, sel=ae&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null;
+  box.querySelectorAll("textarea[id^='n-']").forEach(x=>S.draft[x.id]=x.value);
+  box.replaceChildren(...S.tracks.slice().sort((a,b)=>(a.number||99)-(b.number||99)).map(renderTrack));
+  box.querySelectorAll("textarea[id^='n-']").forEach(x=>{ if(S.draft[x.id]) x.value=S.draft[x.id]; });
+  if(aeId){ const n=document.getElementById(aeId); if(n&&n!==ae){ n.focus({preventScroll:true}); if(sel&&n.setSelectionRange) try{n.setSelectionRange(sel[0],sel[1]);}catch{} } }
+  requestAnimationFrame(()=>S.tracks.forEach(paintTrack));
+}
+function renderTrack(t){
+  const st=t.stage||0,so=S.signoffs[t.id];const v=curVersion(t);
+  const segs=el("div",{class:"segs"+(st>=6||so?" so":"")},...STAGES.map((s,i)=>el("i",{class:i<st?"d":i===st?"c":"",title:s})));
+  const stageLbl=st>=6||so?"Signed off":"Stage: "+STAGES[Math.min(st,5)];
+  const head=el("div",{class:"thead"},el("span",{class:"n"},String(t.number||"").padStart(2,"0")),el("h2",{},t.name||"Untitled"),el("span",{class:"sp"}),
+    el("div",{class:"prog"},segs,el("span",{},el("b",{},stageLbl))));
+  const card=el("section",{class:"track","data-id":t.id},head);
+  if(!v){card.append(el("p",{class:"muted"},"No mix up yet. We'll drop one in soon."));return card;}
+  const vs=versionsOf(t);
+  const vsel=el("select",{id:"v-"+t.id,"aria-label":"Mix version",onchange:e=>{S.sel[t.id]=e.target.value;if(S.playing===t.id){A.pause();S.playing=null;}render();}},
+    ...vs.map((x,i)=>el("option",{value:x.id,selected:x.id===v.id},x.label+(i===0?" (latest)":"")+(x.date?" · "+x.date:""))));
+  const isPlaying=S.playing===t.id&&!A.paused;
+  const loading=S.loadingFile===v.file;
+  const play=el("button",{class:"play"+(loading?" loading":""),type:"button","aria-label":loading?"Loading":isPlaying?"Pause":"Play",onclick:()=>toggle(t,v)},
+    loading?el("span",{class:"spin"}):svg(isPlaying?"M6 4h4v16H6zM14 4h4v16h-4z":"M7 4l13 8-13 8z"));
+  const canvas=el("canvas",{class:"wave","aria-label":"Waveform. Click to jump there and add a note."});
+  canvas.addEventListener("click",e=>{ if(e.detail===0) return;const r=canvas.getBoundingClientRect();const f=(e.clientX-r.left)/r.width;const dur=durOf(v);const at=f*dur;
+    S.pendingAt[t.id]=at;
+    if(S.playing===t.id){A.currentTime=at;}else{startPlay(t,v,at);}
+    const atEl=document.getElementById("at-"+t.id);if(atEl)atEl.textContent=fmt(at);});
+  const notes=S.notes.filter(n=>n.trackId===t.id&&n.version===v.id).sort((a,b)=>a.time-b.time);
+  const dur=durOf(v);
+  const marks=el("div",{class:"marks"},...notes.map(n=>el("button",{class:"mk"+(n.resolved?" r":""),type:"button",style:"left:"+Math.min(100,(n.time/dur)*100)+"%",title:fmt(n.time)+" "+n.text,"aria-label":"Note at "+fmt(n.time),onclick:()=>seek(t,v,n.time)})));
+  const times=el("div",{class:"times"},el("span",{id:"cur-"+t.id},fmt(S.playing===t.id?A.currentTime:0)),el("span",{},fmt(dur)));
+  const player=el("div",{class:"player"},play,el("div",{class:"wavebox"},canvas,marks,times));
+  const at=S.pendingAt[t.id]??0;
+  const compose=el("form",{class:"compose needs-write",onsubmit:e=>{e.preventDefault();addNote(t,v);}},
+    el("label",{class:"atlbl",for:"n-"+t.id},"Your note at ",el("span",{class:"at",id:"at-"+t.id},fmt(at)),el("small",{}," (tap the waveform to change the time)")),
+    el("textarea",{id:"n-"+t.id,maxlength:"2000",placeholder:"What are you hearing here? e.g. vocal needs to come up",required:true}),
+    el("button",{class:"btn save",type:"submit"},"Save note"));
+  const list=el("div",{class:"notes"},...(notes.some(n=>n.shared)?[el("p",{class:"saidhint"},"Here's what the band has said on "+v.label+" so far. Already said? Tap Agree instead of writing it again.")]:[]),...(notes.length?notes.map(n=>el("div",{class:"note"+(n.resolved?" res":"")+(n.shared?" shared":"")},
+    el("button",{class:"t",type:"button",onclick:()=>seek(t,v,n.time)},fmt(n.time)),
+    el("div",{},el("p",{},n.text),el("small",{},el("span",{class:"who"},n.by||"Someone")," · "+(n.date||fdate(n.createdAt))+(n.fromStudio?" · Studio":"")+(n.resolved?" · Sorted":"")+(n.local?" · Yours, not sent yet":"")),n.shared?reactRow(n):null),
+    n.local?el("button",{class:"rm",type:"button","aria-label":"Remove this note",onclick:()=>{ S.notes=S.notes.filter(x=>x!==n); saveLocal(); render(); toast("Note removed"); }},"Remove"):el("span")
+  )):[el("p",{class:"muted"},"No notes on "+v.label+" yet.")]));
+  card.append(el("div",{class:"vrow"},el("label",{for:"v-"+t.id},"Version"),vsel,v.note?el("span",{},v.note):null),player,list,compose);
+  if(S.local){
+    const mine=S.notes.filter(n=>n.local&&!n.resolved).length+rxCount();
+    const here=notes.filter(n=>n.local||S.rx[n.id]).length;
+    if(mine){
+      const btn=el("a",{class:"btn primary sendt",href:formUrl(),target:"_blank",rel:"noopener",onclick:e=>{ if(!myName()){ e.preventDefault(); toast("Pop your name in at the top first."); $("#me").focus(); return; } toast("Now press Submit on the form that opens"); }},"Send my notes to AJ ↗");
+      card.append(el("div",{class:"sendtrack"},
+        el("div",{},el("b",{},here?(here+(here===1?" note or reply":" notes or replies")+" on this song, not sent yet"):"You have notes on another song, not sent yet"),
+          el("span",{},(mine===1?"Tap the button to send your note.":"This sends all "+mine+" notes from every song in one go.")+" A form opens: just press Submit.")),
+        btn));
+    }
+  }
+  if(st>=5&&!so&&st<6){
+    const box=el("div",{class:"approve needs-write"});
+    const ask=()=>box.replaceChildren(el("span",{},"Totally happy with "+v.label+" as the final version?"),el("button",{class:"lnk",type:"button",onclick:()=>signOff(t,v)},"Yes, approve as final"),el("button",{class:"lnk mute",type:"button",onclick:closed},"Cancel"));
+    const closed=()=>box.replaceChildren(el("span",{},"No more changes needed?"),el("button",{class:"lnk",type:"button",onclick:ask},"Approve "+v.label+" as final"));
+    closed(); card.append(box);
+  }
+  if(so) card.append(el("div",{class:"signoff"},el("p",{},"Approved "+(so.version||"")+(so.by?" by "+so.by:"")+" on "+fdate(so.at)+".")));
+  return card;
+}
+function reactRow(n){
+  const agree=(n.agree||[]).filter(Boolean), dis=(n.disagree||[]).filter(x=>x&&x.by);
+  const me=myName(), mine=S.rx[n.id];
+  const kids=[];
+  if(agree.length) kids.push(el("span",{class:"cnt"},"Agreed: ",el("b",{},agree.join(", "))));
+  if(dis.length) kids.push(el("span",{class:"cnt"},"Disagreed: ",...dis.map((d,i)=>[i?", ":"",el("b",{},d.by),d.why?" ("+d.why+")":""])));
+  const isMe=me&&same(me,n.by), already=me&&(agree.some(a=>same(a,me))||dis.some(d=>same(d.by,me)));
+  if(!n.resolved&&!isMe){
+    if(mine){
+      kids.push(el("span",{class:"pend"},(mine.kind==="agree"?"You agree":"You disagree")+(mine.why?" ("+mine.why+")":"")+", not sent yet"),
+        el("button",{class:"lnk mute",type:"button",onclick:()=>{ delete S.rx[n.id]; saveLocal(); render(); }},"Undo"));
+    } else if(!already){
+      kids.push(el("button",{class:"btn",type:"button","aria-label":"Agree with "+(n.by||"this note"),onclick:()=>react(n,"agree")},"Agree"),
+        el("button",{class:"btn",type:"button","aria-label":"Disagree with "+(n.by||"this note"),onclick:()=>{ S.rxOpen=S.rxOpen===n.id?null:n.id; render(); setTimeout(()=>{const i=document.getElementById("why-"+n.id); if(i) i.focus();},0); }},"Disagree"));
+      if(S.rxOpen===n.id){
+        const inp=el("input",{id:"why-"+n.id,maxlength:"200",placeholder:"Why? (optional)","aria-label":"Why you disagree (optional)"});
+        kids.push(el("form",{class:"rxwhy",onsubmit:e=>{e.preventDefault(); react(n,"disagree",inp.value.trim());}},inp,el("button",{class:"btn on-dis",type:"submit"},"Save")));
+      }
+    }
+  }
+  return kids.length?el("div",{class:"rx"},...kids):null;
+}
+function react(n,kind,why){
+  if(!myName()){ toast("Pop your name in at the top first."); $("#me").focus(); return; }
+  S.rx[n.id]={kind,why:why||"",trackId:n.trackId,at:Date.now()}; S.rxOpen=null; saveLocal(); render();
+  toast(kind==="agree"?"Agree saved. Send your notes when you're done.":"Saved. Send your notes when you're done.");
+}
+function svg(d){const ns="http://www.w3.org/2000/svg";const s=document.createElementNS(ns,"svg");s.setAttribute("viewBox","0 0 24 24");const p=document.createElementNS(ns,"path");p.setAttribute("d",d);s.append(p);return s;}
+function durOf(v){return (S.playingFile===v.file&&A.duration&&isFinite(A.duration))?A.duration:(v.duration||1);}
+async function paintTrack(t){
+  const v=curVersion(t);if(!v)return;const c=document.querySelector('.track[data-id="'+t.id+'"] canvas.wave');if(!c)return;
+  const prog=S.playing===t.id?(A.currentTime/(durOf(v)||1)):0;
+  drawWave(c,v.peaks||S.peaks[v.file]||null,prog);
+  if(!(v.peaks&&v.peaks.length)&&!S.peaks[v.file]){const p=await getPeaks(v);if(p)drawWave(c,p,prog);}
+}
+
+/* ---------- playback ---------- */
+S.blobs={};
+async function blobFor(file){
+  if(S.blobs[file]) return S.blobs[file];
+  try{ const r=await fetch(file); const b=await r.blob(); S.blobs[file]=URL.createObjectURL(b); }catch{ S.blobs[file]=file; }
+  return S.blobs[file];
+}
+async function startPlay(t,v,at=0){
+  if(S.playingFile!==v.file){
+    S.loadingFile=v.file; render();
+    const src=await blobFor(v.file);
+    S.loadingFile=null;
+    A.src=src; S.playingFile=v.file;
+  }
+  S.playing=t.id;
+  S.seeking=true;
+  const go=()=>{try{A.currentTime=at;}catch{} A.play().catch(()=>{}); setTimeout(()=>{S.seeking=false;},400); };
+  if(A.readyState>=1) go(); else { A.addEventListener("loadedmetadata",go,{once:true}); A.load(); }
+}
+function toggle(t,v){ if(S.playing===t.id&&S.playingFile===v.file){ A.paused?A.play().catch(()=>{}):A.pause(); } else startPlay(t,v,S.pendingAt[t.id]||0); }
+function seek(t,v,time){ S.pendingAt[t.id]=time; const atEl=document.getElementById("at-"+t.id); if(atEl) atEl.textContent=fmt(time); if(S.playing===t.id&&S.playingFile===v.file){A.currentTime=time;A.play().catch(()=>{});} else startPlay(t,v,time); }
+A.addEventListener("play",render); A.addEventListener("pause",render);
+A.addEventListener("timeupdate",()=>{ if(!S.playing)return; const t=S.tracks.find(x=>x.id===S.playing); if(!t)return; const v=curVersion(t); const c=document.getElementById("cur-"+t.id); if(c)c.textContent=fmt(A.currentTime);
+  if(!S.seeking && !A.seeking && !A.paused && (!document.activeElement||document.activeElement.id!=="n-"+t.id)){ S.pendingAt[t.id]=A.currentTime; const atEl=document.getElementById("at-"+t.id); if(atEl) atEl.textContent=fmt(A.currentTime); }
+  const cv=document.querySelector('.track[data-id="'+t.id+'"] canvas.wave'); if(cv&&v) drawWave(cv,v.peaks||S.peaks[v.file]||null,A.currentTime/(durOf(v)||1)); });
+window.addEventListener("resize",()=>S.tracks.forEach(paintTrack));
+
+/* ---------- writes ---------- */
+function myName(){ return $("#me").value.trim(); }
+async function addNote(t,v){
+  const ta=document.getElementById("n-"+t.id); const text=ta.value.trim(); if(!text) return;
+  if(!myName()){ toast("Pop your name in at the top so we know who's talking."); $("#me").focus(); return; }
+  const time=Math.round((S.pendingAt[t.id]??A.currentTime??0)*10)/10;
+  if(S.local){ S.notes.push({id:"l"+Date.now(),trackId:t.id,version:v.id,versionLabel:v.label,time,text,by:myName(),resolved:false,createdAt:Date.now(),local:true}); saveLocal(); ta.value=""; S.draft[ta.id]=""; render(); toast("Note saved at "+fmt(time)); return; }
+  const ok=await write(db=>db.collection("notes").add({trackId:t.id,version:v.id,versionLabel:v.label,time,text,by:myName(),authorId:S.uid||null,resolved:false,createdAt:Date.now()}),"Note added at "+fmt(time));
+  if(ok){ ta.value=""; S.draft[ta.id]=""; const n=document.getElementById(ta.id); if(n) n.value=""; }
+}
+async function signOff(t,v){
+  if(!myName()){ toast("Add your name at the top first."); $("#me").focus(); return; }
+  if(S.local){ S.signoffs[t.id]={trackId:t.id,version:v.label,versionId:v.id,by:myName(),at:Date.now(),local:true}; saveLocal(); render(); toast("Approval noted. Send your notes to the studio to confirm it."); return; }
+  await write(db=>db.doc("signoffs/"+t.id).set({trackId:t.id,version:v.label,versionId:v.id,by:myName(),authorId:S.uid||null,at:Date.now()}),"Approved. The studio has been told.");
+}
+$("#me").addEventListener("change",()=>{ try{localStorage.setItem("bc-name",myName());}catch{} });
+try{ const n=localStorage.getItem("bc-name"); if(n) $("#me").value=n; }catch{}
+
+/* ---------- boot ---------- */
+const BANK={name:"Alan Jones",sort:"09-01-27",acc:"14134603"};
+function bankCard(m){
+  const bank=m.bank||BANK; const ref=m.ref||m.artist||"";
+  const row=(k,v)=>el("div",{class:"brow"},el("span",{},k),el("b",{},v),el("button",{class:"cp",type:"button","aria-label":"Copy "+k,onclick:async e=>{ try{ await navigator.clipboard.writeText(v); e.target.textContent="Copied"; }catch{ const r=document.createRange(); r.selectNodeContents(e.target.previousSibling); const s=getSelection(); s.removeAllRanges(); s.addRange(r); e.target.textContent="Selected"; } setTimeout(()=>e.target.textContent="Copy",1600); }},"Copy"));
+  return el("div",{class:"bank"},
+    el("div",{class:"bank-h"},el("span",{},"Pay by bank transfer"),el("small",{},"or cash in the studio")),
+    row("Name",bank.name), row("Sort code",bank.sort), row("Account",bank.acc), row("Reference",ref));
+}
+function renderBalance(m){
+  const box=$("#balance"); const b=m.money||{};
+  const G=new Intl.NumberFormat("en-GB",{style:"currency",currency:"GBP"});
+  const kids=[el("div",{class:"bhead"},el("b",{},"Your project"),m.moneyAsOf?el("small",{class:"basof"},"Updated "+m.moneyAsOf):null)];
+  const h=m.hours||{}; const ht=(Number(h.recording)||0)+(Number(h.post)||0);
+  if(ht) kids.push(el("p",{class:"hours"},el("b",{},ht+" hours")," on your music so far",
+     el("span",{}," ("+[h.recording?h.recording+" recording":null,h.post?h.post+" editing, mixing and mastering":null].filter(Boolean).join(", ")+")"),
+     (b.charged>0)?el("span",{class:"avg"}," · works out at "+new Intl.NumberFormat("en-GB",{style:"currency",currency:"GBP"}).format(b.charged/ht)+" an hour"):null));
+  const items=b.items||[];
+  if(items.length){
+    kids.push(el("div",{class:"items"},...items.map(it=>{ const gross=(Number(it.qty)||0)*(Number(it.rate)||0); const off=Math.min(gross,Number(it.discount)||0); const net=gross-off;
+      return el("div",{class:"item"},el("span",{class:"iw"},it.desc+(Number(it.qty)>1?" × "+it.qty:"")),
+        off?el("s",{},G.format(gross)):el("span"),
+        el("b",{class:net===0?"onus":""},net===0?"On the house":G.format(net))); })));
+  }
+  if(b.discount>0) kids.push(el("p",{class:"saved"},"You saved ",el("b",{},G.format(b.discount))," on this project. Our pleasure."));
+  const owed=Math.max(0,b.owed||0);
+  if(b.charged>0||items.length){
+    kids.push(el("div",{class:"bnums"},
+      el("div",{},el("span",{},"Your price"),el("b",{},G.format(b.charged||0))),
+      el("div",{},el("span",{},"Paid"),el("b",{},G.format((b.paid||0)+(b.free||0)))),
+      el("div",{class:owed>0?"owe":"ok"},el("span",{},owed>0?"Left to pay":"Balance"),el("b",{},owed>0?G.format(owed):"All paid"))));
+  } else kids.push(el("p",{class:"bpay"},"Session costs will show here once we've added them."));
+  const unlocked=m.downloadsOpen||((b.charged>0||items.length)&&owed<=0);
+  const dl=safeUrl(m.driveUrl);
+  const dlBox=el("div",{class:"dlbox"},
+    el("p",{class:"bpay"},"The tracks on this page are MP3s, to go easy on your data. Your full-quality WAVs download from our Google Drive once your balance is paid in full."));
+  if(unlocked&&dl){ dlBox.append(el("a",{class:"btn primary",href:dl,target:"_blank",rel:"noopener"},"Download full-quality WAVs ↗")); }
+  else{
+    dlBox.append(el("div",{class:"early"},
+      el("a",{class:"btn",href:"#",target:"_blank",rel:"noopener",onclick:e=>reqLink(e,"PAYMENT: "+(myName()||"Client")+" says they've already paid in full. Please check and unlock the WAVs.")},"I've already paid ↗"),
+      el("a",{class:"btn",href:"#",target:"_blank",rel:"noopener",onclick:e=>reqLink(e,"REQUEST: early access to the full-quality WAVs please.")},"Request early access ↗")));
+  }
+  kids.push(dlBox);
+  if(owed>0||!(b.charged>0)) kids.push(bankCard(m));
+  box.replaceChildren(...kids); box.hidden=false;
+}
+function renderNext(m){
+  const box=$("#nextSess"); const n=m.nextSession;
+  const wa=t=>"https://wa.me/447880354653?text="+encodeURIComponent(t);
+  const who=(m.artist||"").trim();
+  if(n&&n.date){
+    box.replaceChildren(el("div",{},el("span",{class:"nk"},"Your next session"),el("b",{class:"nd"},n.date),n.type?el("span",{class:"nt"},n.type):null),
+      el("a",{class:"btn",href:wa("Hi AJ, it's "+who+" about our session on "+n.date+". "),target:"_blank",rel:"noopener"},"Need to change it? ↗"));
+  } else {
+    box.replaceChildren(el("div",{},el("span",{class:"nk"},"Next session"),el("b",{class:"nd"},"Have you booked your follow-up?"),el("span",{class:"nt"},"Whether it's more recording or a mix session, grab a date before the diary fills up.")),
+      el("div",{class:"sendrow"},
+        el("a",{class:"btn green",href:wa("Hi AJ, it's "+who+". We'd like to book a follow-up recording session."),target:"_blank",rel:"noopener"},"Book recording ↗"),
+        el("a",{class:"btn",href:wa("Hi AJ, it's "+who+". We'd like to book a mix session."),target:"_blank",rel:"noopener"},"Book mix session ↗")));
+  }
+  box.hidden=false;
+}
+function reqLink(e,msg){
+  if(!myName()){ e.preventDefault(); toast("Pop your name in at the top first."); $("#me").focus(); return; }
+  const u=new URL(FORM); u.searchParams.set("usp","pp_url"); u.searchParams.set(F_NAME,myName()); u.searchParams.set(F_PROJECT,(S.meta.key||"")+" | "+(S.meta.artist||"")+" / "+(S.meta.title||"")); u.searchParams.set(F_NOTES,msg);
+  e.currentTarget.href=u.href; toast("A form opens with your message. Press Submit and we'll sort it.");
+}
+const SEED=(()=>{try{return JSON.parse(document.getElementById("seed").textContent);}catch{return {meta:{},tracks:[]};}})();
+const LKEY="bc-notes-"+(SEED.meta.key||"page");
+function saveLocal(){ try{ localStorage.setItem(LKEY,JSON.stringify({rx:S.rx,notes:S.notes.filter(n=>n.local),signoffs:Object.fromEntries(Object.entries(S.signoffs).filter(([k,v])=>v.local))})); }catch{} }
+function loadLocal(){ try{ const d=JSON.parse(localStorage.getItem(LKEY)||"{}"); S.notes=(d.notes||[]); S.signoffs=d.signoffs||{}; S.rx=d.rx||{}; }catch{} }
+function mergeShared(){
+  const shared=(SEED.notes||[]).map(n=>({...n,shared:true,local:false}));
+  const ids=new Set(shared.map(n=>n.id));
+  /* drop my own notes once the studio has synced them back in */
+  const mineLeft=S.notes.filter(n=>n.local&&!shared.some(s=>s.trackId===n.trackId&&s.version===n.version&&Math.abs((s.time||0)-(n.time||0))<1.5&&same(s.by,n.by)&&same(s.text,n.text)));
+  /* drop my agree/disagree once it shows on the note */
+  for(const [id,r] of Object.entries(S.rx)){ const s=shared.find(x=>x.id===id); if(!s){ if(!ids.has(id)) delete S.rx[id]; continue; }
+    const me=myName(); if(me&&((r.kind==="agree"&&(s.agree||[]).some(a=>same(a,me)))||(r.kind==="disagree"&&(s.disagree||[]).some(d=>same(d.by,me))))) delete S.rx[id]; }
+  S.notes=[...shared,...mineLeft]; saveLocal();
+}
+const FORM="https://docs.google.com/forms/d/e/1FAIpQLSeE3_UPAwZdn9Eab0YuixJAuZJ1VUFzMTZ15XFTaIbl5f75rA/viewform";
+const F_NAME="entry.412453666", F_PROJECT="entry.369055562", F_NOTES="entry.110286936";
+function formUrl(){
+  const u=new URL(FORM); u.searchParams.set("usp","pp_url");
+  u.searchParams.set(F_NAME,myName()||""); u.searchParams.set(F_PROJECT,(S.meta.key||"")+" | "+(S.meta.artist||"")+" / "+(S.meta.title||""));
+  u.searchParams.set(F_NOTES,notesBody()); return u.href;
+}
+function notesBody(){
+  const lines=[];
+  for(const t of S.tracks.slice().sort((a,b)=>(a.number||99)-(b.number||99))){
+    const ns=S.notes.filter(n=>n.local&&n.trackId===t.id&&!n.resolved).sort((a,b)=>(a.versionLabel||"").localeCompare(b.versionLabel||"")||a.time-b.time);
+    const so=S.signoffs[t.id];
+    const rs=S.notes.filter(n=>n.shared&&n.trackId===t.id&&S.rx[n.id]);
+    if(!ns.length&&!rs.length&&!(so&&so.local)) continue;
+    lines.push("== "+t.name.toUpperCase()+" ==");
+    for(const n of ns) lines.push(n.versionLabel+" @ "+fmt(n.time)+" - "+n.text.replace(/\s*\n\s*/g," "));
+    for(const n of rs) lines.push(rxLine(n,S.rx[n.id]));
+    if(so&&so.local) lines.push("APPROVED "+so.version);
+    lines.push("");
+  }
+  return lines.join("\n").trim();
+}
+function notesText(){
+  const lines=["BLACK CACTUS STUDIO · MIX NOTES","Artist: "+(S.meta.artist||"")+" / "+(S.meta.title||""),"From: "+(myName()||"(no name)"),"----------------------------------",""];
+  for(const t of S.tracks.slice().sort((a,b)=>(a.number||99)-(b.number||99))){
+    const ns=S.notes.filter(n=>n.local&&n.trackId===t.id&&!n.resolved).sort((a,b)=>(a.versionLabel||"").localeCompare(b.versionLabel||"")||a.time-b.time);
+    const so=S.signoffs[t.id];
+    const rs=S.notes.filter(n=>n.shared&&n.trackId===t.id&&S.rx[n.id]);
+    if(!ns.length&&!rs.length&&!so) continue;
+    lines.push(t.name.toUpperCase());
+    for(const n of rs) lines.push("   "+(S.rx[n.id].kind==="agree"?"Agree with ":"Disagree with ")+(n.by||"Someone")+" at "+n.versionLabel+" "+fmt(n.time)+(S.rx[n.id].why?": "+S.rx[n.id].why:""));
+    let last="";
+    for(const n of ns){ if(n.versionLabel!==last){ lines.push("  "+n.versionLabel+":"); last=n.versionLabel; } lines.push("   "+fmt(n.time)+"  "+n.text.replace(/\n/g," ")); }
+    if(so&&so.local) lines.push("  APPROVED "+so.version);
+    lines.push("");
+  }
+  return lines.join("\n");
+}
+function renderLocalPanel(){
+  const box=$("#localPanel"); if(!S.local){ box.hidden=true; return; }
+  const n=S.notes.filter(x=>x.local&&!x.resolved).length+rxCount(), a=Object.values(S.signoffs).filter(x=>x.local).length;
+  box.hidden=false;
+  $("#localCount").textContent = n||a ? (n+(n===1?" note":" notes")+(a?" and "+a+(a===1?" approval":" approvals"):"")+" ready to send.") : "Leave notes on the waveforms below, then send them over from here.";
+  $("#copyNotes").disabled=!(n||a);
+  const wa=$("#waNotes"); if(n||a){ const t=notesText(); wa.href="https://wa.me/447880354653?text="+encodeURIComponent(t); wa.setAttribute("aria-disabled",t.length<3500?"false":"true"); } else { wa.href="#"; wa.setAttribute("aria-disabled","true"); }
+  const bar=$("#sendBar"); bar.hidden=!(n||a); $("#sendBarTxt").textContent=(n||a)?(n+(n===1?" note":" notes")+(a?" + "+a+" approval":"")+" saved, not sent yet"):"";
+  const sn=$("#sendNotes"); if(n||a){ const href=formUrl(); if(href.length<7500){ sn.href=href; sn.setAttribute("aria-disabled","false"); } else { sn.setAttribute("aria-disabled","true"); sn.textContent="Too many notes for one send, use Copy"; } } else { sn.href="#"; sn.setAttribute("aria-disabled","true"); }
+}
+$("#sendNotes").addEventListener("click",e=>{ if($("#sendNotes").getAttribute("aria-disabled")==="true"){e.preventDefault();return;} if(!myName()){ e.preventDefault(); toast("Pop your name in at the top first."); $("#me").focus(); return; } $("#sendHelp").hidden=false; });
+$("#me").addEventListener("input",()=>renderLocalPanel());
+$("#sendBarBtn").addEventListener("click",e=>{ if(!myName()){ e.preventDefault(); toast("Pop your name in at the top first."); $("#me").focus(); return; } const b=$("#sendBarBtn"); b.href=formUrl(); b.target="_blank"; b.rel="noopener"; toast("Now press Submit on the form that opens"); });
+$("#waNotes").addEventListener("click",e=>{ if($("#waNotes").getAttribute("aria-disabled")==="true"){e.preventDefault();return;} if(!myName()){ e.preventDefault(); toast("Pop your name in at the top first."); $("#me").focus(); } });
+$("#copyNotes").addEventListener("click",async()=>{
+  const txt=notesText(); const pre=$("#notesOut"); pre.textContent=txt; pre.hidden=false;
+  try{ await navigator.clipboard.writeText(txt); toast("Copied. Paste it into a message or email to the studio."); }
+  catch{ const r=document.createRange(); r.selectNodeContents(pre); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); toast("Selected. Press Cmd+C (or Ctrl+C) to copy."); }
+});
+S.meta=SEED.meta||{}; S.tracks=SEED.tracks||[];
+
+(async()=>{
+  const db=window.claude?await window.claude.use("db"):null;
+  const user=window.claude?await window.claude.use("user"):null;
+  if(user){ try{ S.uid=await user.id(); const c=await user.can("data.write"); if(c===false){S.canWrite=false;document.body.classList.add("ro");} if(!$("#me").value){ const me=await user.me(); if(me.name) $("#me").value=me.name; } }catch{} }
+  if(true){ S.local=true; document.body.classList.remove("ro"); loadLocal(); mergeShared(); render(); return; }
+  S.db=db;
+  const err=()=>toast("Lost connection. Reload the page.");
+  db.doc("meta/project").onSnapshot(s=>{S.meta={...SEED.meta,...(s.exists?s.data():{})};render();},err);
+  db.collection("tracks").limit(200).onSnapshot(s=>{ if(s.size) S.tracks=s.docs.map(d=>({id:d.id,...d.data()})); render();},err);
+  db.collection("notes").limit(1000).onSnapshot(s=>{S.notes=s.docs.map(d=>({id:d.id,...d.data()}));render();},err);
+  db.collection("signoffs").limit(200).onSnapshot(s=>{const o={};s.docs.forEach(d=>o[d.id]=d.data());S.signoffs=o;render();},err);
+})();
+</script>
+
+</body></html>
