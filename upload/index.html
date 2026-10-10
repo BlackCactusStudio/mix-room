@@ -42,6 +42,7 @@ td.n{width:4.5em}
 textarea{font:inherit;color:inherit;background:#000;border:1px solid var(--line);padding:10px;min-height:9em;width:100%}
 [hidden]{display:none!important}
 .pill{font-family:var(--mono);font-size:.72rem;padding:2px 8px;border:1px solid var(--line);border-radius:3px;color:var(--muted)}
+.flag{display:flex;flex-direction:column;gap:6px;font-size:.88rem;color:var(--gold);min-width:12em}.flag .btn{min-height:34px;padding:4px 10px;font-size:.82rem}.flag.okk{color:var(--green)}.bw{border:1px solid var(--gold);background:var(--gold-soft);padding:10px 12px;color:var(--fg);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .pill.new{border-color:var(--gold);color:var(--gold)}
 </style></head><body>
 <div class="wrap">
@@ -60,8 +61,8 @@ textarea{font:inherit;color:inherit;background:#000;border:1px solid var(--line)
     <div class="row">
       <label>Existing page<select id="band"><option value="">Loading…</option></select></label>
       <span class="muted" style="flex:0 0 auto;align-self:center">or new:</span>
-      <label>Artist<input id="artist" placeholder="e.g. THE LAMPLIGHT CLUB"></label>
-      <label>Project<input id="project" placeholder="e.g. ALBUM"></label>
+      <label>Artist<input id="artist" spellcheck="true" lang="en-GB" autocapitalize="characters" placeholder="e.g. THE LAMPLIGHT CLUB"></label>
+      <label>Project<input id="project" spellcheck="true" lang="en-GB" autocapitalize="characters" placeholder="e.g. ALBUM"></label><div class="bw" id="bandWarn" hidden></div>
     </div>
     <p class="muted">Names go on the page exactly as typed. Check capitals and spelling before you drop files. Picking an existing page ignores the new fields.</p>
   </section>
@@ -75,8 +76,8 @@ textarea{font:inherit;color:inherit;background:#000;border:1px solid var(--line)
   <section class="card" id="checkCard" hidden>
     <h2>3. Check the track names</h2>
     <p class="muted">Read from the file names. Fix any spelling here, this is what the band will see. Match a file to a track that already exists to add it as the next mix.</p>
-    <table><thead><tr><th>File</th><th>Track</th><th>Track name on page</th><th>Version</th><th>Bounced</th></tr></thead><tbody id="rows"></tbody></table>
-    <div class="row"><button class="btn green" id="go">Looks right, build the page</button><button class="btn" id="reset">Start again</button></div>
+    <table><thead><tr><th>File</th><th>Track</th><th>Track name on page</th><th>Version</th><th>Bounced</th><th>Spell check</th></tr></thead><tbody id="rows"></tbody></table>
+    <p class="muted" id="spellSum"></p><div class="row"><button class="btn green" id="go">Looks right, build the page</button><button class="btn" id="reset">Start again</button></div>
   </section>
 
   <section class="card" id="workCard" hidden>
@@ -104,9 +105,12 @@ const S={token:"",projects:[],files:[],rows:[],page:null,sha:null,slug:"",meta:n
 
 /* ---------- GitHub ---------- */
 async function gh(method,path,body){
+  for(let a=1;;a++){ try{ const res=await gh1(method,path,body); return res; }catch(e){ if(a>=8||!/(401|5\d\d|Failed to fetch|NetworkError|network)/i.test(e.message)) throw e; if(typeof log==="function"&&a>1) log("  GitHub hiccup, retrying ("+a+")…"); await new Promise(r=>setTimeout(r,1500*a)); } }
+}
+async function gh1(method,path,body){
   const r=await fetch(API+path+(method==="GET"?"?t="+Date.now():""),{method,headers:{Authorization:"Bearer "+S.token,Accept:"application/vnd.github+json","Content-Type":"application/json"},body:body?JSON.stringify(body):undefined});
   const j=await r.json().catch(()=>({}));
-  if(!r.ok&&r.status!==404) throw new Error(method+" "+path+": "+(j.message||r.status));
+  if(!r.ok&&r.status!==404) throw new Error(method+" "+path+": "+r.status+" "+(j.message||""));
   return {status:r.status,data:j};
 }
 async function ghGetText(path){ const {status,data}=await gh("GET",path); if(status===404) return {text:null,sha:null}; return {text:new TextDecoder().decode(Uint8Array.from(atob(data.content.replace(/\n/g,"")),c=>c.charCodeAt(0))),sha:data.sha}; }
@@ -123,10 +127,47 @@ if(S.token){ $("#token").value=S.token; checkToken(); }
 $("#saveToken").onclick=()=>{ S.token=$("#token").value.trim(); try{localStorage.setItem("bc-gh-token",S.token);}catch{} checkToken(); };
 async function checkToken(){
   const m=$("#tokenMsg"); m.textContent="Checking…"; m.className="muted";
-  try{ const {text}=await ghGetText("projects.json"); S.projects=JSON.parse(text||"[]"); m.textContent="Token works. "+S.projects.length+" band page"+(S.projects.length===1?"":"s")+" found."; m.className="muted ok"; $("#tokenCard").querySelector("h2").textContent="GitHub token (saved)"; fillBands(); $("#bandCard").hidden=false; $("#dropCard").hidden=false; }
+  try{ const {text}=await ghGetText("projects.json"); S.projects=JSON.parse(text||"[]"); m.textContent="Token works. "+S.projects.length+" band page"+(S.projects.length===1?"":"s")+" found."; m.className="muted ok"; $("#tokenCard").querySelector("h2").textContent="GitHub token (saved)"; fillBands(); loadKnown(); preselect(); $("#bandCard").hidden=false; $("#dropCard").hidden=false; }
   catch(e){ m.textContent="Token didn't work: "+e.message; m.className="muted err"; }
 }
 function fillBands(){ const s=$("#band"); s.replaceChildren(new Option("New band (type below)","")); for(const p of S.projects) s.append(new Option(p.artist+" · "+p.title,p.slug)); }
+
+/* ---------- spell check ---------- */
+S.known={tracks:new Map(),artists:new Map()}; // norm -> display
+async function loadKnown(){
+  for(const p of S.projects){ S.known.artists.set(norm(p.artist),p.artist);
+    try{ const {text}=await ghGetText(p.slug+"/index.html"); const m=text&&text.match(/<script id="seed" type="application\/json">([\s\S]*?)<\/script>/); if(m) for(const t of JSON.parse(m[1]).tracks||[]) S.known.tracks.set(norm(t.name),t.name); }catch{} }
+}
+function lev(a,b){ const m=a.length,n=b.length; if(!m)return n; if(!n)return m; let p=Array.from({length:n+1},(_,j)=>j); for(let i=1;i<=m;i++){ const c=[i]; for(let j=1;j<=n;j++) c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1)); p=c; } return p[n]; }
+function closest(name,map){ const g=norm(name); if(!g) return null; if(map.has(g)) return {exact:true,name:map.get(g)}; let best=null;
+  const gw=g.split(" ").length;
+  for(const [k,v] of map){ const kp=k.split(" ").slice(0,gw).join(" ");
+    const sim=Math.max(1-lev(g,k)/Math.max(g.length,k.length), kp!==k?(1-lev(g,kp)/Math.max(g.length,kp.length))-0.05:0);
+    const pre=k.startsWith(g)||g.startsWith(k);
+    if((sim>=0.65||(pre&&Math.min(g.length,k.length)>=4))&&(!best||sim>best.sim)) best={name:v,sim}; }
+  return best; }
+const COMMON={CEMETRY:"CEMETERY",SEPERATE:"SEPARATE",DEFINATELY:"DEFINITELY",GOVERMENT:"GOVERNMENT",TOMMOROW:"TOMORROW",TOMORROWS:"TOMORROW'S",RYTHM:"RHYTHM",RYTHYM:"RHYTHM",BEATIFUL:"BEAUTIFUL",BEAUTIFULL:"BEAUTIFUL",FOREVA:"FOREVER",HEAVAN:"HEAVEN",WIERD:"WEIRD",RECIEVE:"RECEIVE",BELEIVE:"BELIEVE",FREIND:"FRIEND",GHOSTS:"GHOSTS",LONLEY:"LONELY",LONLY:"LONELY",TRUELY:"TRULY",ACROSS:"ACROSS",ACCROSS:"ACROSS",UNTILL:"UNTIL",NIEGHBOUR:"NEIGHBOUR",NEIGHBOR:"NEIGHBOUR",COLOR:"COLOUR",FAVORITE:"FAVOURITE",HONOR:"HONOUR",GREY:"GREY",THIER:"THEIR",YOUR:"YOUR",DREAMES:"DREAMS",MEMORYS:"MEMORIES",STORYS:"STORIES",WHISKY:"WHISKY",CEMETARY:"CEMETERY",SYMPHONEY:"SYMPHONY",MIDNITE:"MIDNIGHT",NITE:"NIGHT",LITE:"LIGHT",THRU:"THROUGH",TONITE:"TONIGHT"};
+const HOMO=["THEIR","THERE","THEY'RE","YOUR","YOU'RE","ITS","IT'S","EFFECT","AFFECT","WHERE","WEAR","WERE","TO","TOO","LOSE","LOOSE","THEN","THAN","WHOSE","WHO'S","BREAK","BRAKE","PEACE","PIECE","HEAR","HERE","RIGHT","WRITE","KNOW","NO","SOLE","SOUL","WHOLE","HOLE","HOLY","HOLLY"];
+function wordFlags(name){ const out=[]; for(const w of norm(name).split(" ")){ if(COMMON[w]&&COMMON[w]!==w) out.push(w+" → "+COMMON[w]+"?"); else if(HOMO.includes(w)) out.push("check "+w+" (sound-alike)"); else if(w.length>3&&!/[AEIOUY]/.test(w)) out.push(w+" has no vowels"); else if(/(.)\1\1/.test(w)) out.push(w+" has a tripled letter"); } return out; }
+function checkRow(r){
+  if(r.okd) return null;
+  const name=(r.trackId?"":r.name).trim(); if(!name) return null;
+  if(S.known.tracks.has(norm(name))||S.seed.tracks.some(t=>norm(t.name)===norm(name))) return null;
+  const words=wordFlags(name);
+  const own=closest(name,new Map(S.seed.tracks.map(t=>[norm(t.name),t.name])));
+  if(own&&!own.exact) return {msg:"This project already has "+own.name+". Same song?",use:own.name,match:S.seed.tracks.find(t=>t.name===own.name).id,words};
+  const any=closest(name,S.known.tracks);
+  if(any&&!any.exact) return {msg:"Did you mean "+any.name+"?",use:any.name,words};
+  if(words.length) return {msg:words.join(", "),words};
+  return null;
+}
+function fileDateNote(r){ const m=r.file.name.match(/(\d{1,2})[.\-_](\d{1,2})[.\-_](\d{2,4})/); if(!m) return ""; const d=+m[1],mo=+m[2]; if(mo<1||mo>12) return ""; if(d===r.date.getDate()&&mo===r.date.getMonth()+1) return ""; return "File name says "+d+" "+MON[mo-1]+", bounced "+nice(r.date)+". Using "+nice(r.date)+" (change the date if wrong)."; }
+function bandCheck(){ const w=$("#bandWarn"); if(!w) return true; const a=$("#artist").value.trim(); if($("#band").value||!a||S.bandOk){ w.hidden=true; return true; }
+  const c=closest(a,S.known.artists); const words=wordFlags(a)
+  if(c&&c.exact){ const p=S.projects.find(p=>norm(p.artist)===norm(a)); w.replaceChildren("There's already a page for "+p.artist+" ("+p.title+"). New project for them, or add to that page? "); const u=document.createElement("button"); u.className="btn"; u.textContent="Use existing page"; u.onclick=()=>{ $("#band").value=p.slug; w.hidden=true; }; const k=document.createElement("button"); k.className="btn"; k.textContent="New project, carry on"; k.onclick=()=>{S.bandOk=true;w.hidden=true;}; w.append(u,k); w.hidden=false; return false; }
+  if(c||words.length){ w.replaceChildren((c?"Did you mean "+c.name+"? ":"")+(words.length?"Check: "+words.join(", ")+". ":"")); if(c){ const u=document.createElement("button"); u.className="btn"; u.textContent="Use "+c.name; u.onclick=()=>{ $("#artist").value=c.name; bandCheck(); }; w.append(u); } const k=document.createElement("button"); k.className="btn"; k.textContent="Mine is right"; k.onclick=()=>{S.bandOk=true;w.hidden=true;}; w.append(k); w.hidden=false; return false; }
+  w.hidden=true; return true; }
+function preselect(){ const q=new URLSearchParams(location.search); const p=q.get("p"); if(p&&S.projects.some(x=>x.slug===p)) $("#band").value=p; if(q.get("new")){ $("#band").value=""; $("#artist").focus(); } }
 
 /* ---------- names ---------- */
 const slugify=s=>s.toLowerCase().replace(/&/g," and ").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
@@ -136,7 +177,10 @@ function guessTrack(fn){
   s=s.replace(/[_\-\.]+/g," ");
   s=s.replace(/\b(rough|mix|master|final|bounce|bounced|v\d+|\d{6}|\d{8}|\d{4}\s?\d{2}\s?\d{2}|24bit|16bit|44k|48k|44\.1k|wav)\b/gi," ");
   s=s.replace(/^\s*\d{1,2}\s+/,"");
-  return norm(s);
+  s=s.replace(/([A-Za-z])(\d)/g,"$1 $2").replace(/(\d)([A-Za-z])/g,"$1 $2");
+  s=s.replace(/\b(vocal|vox|inst|instrumental|lufs|test|ver|version|alt|edit|radio)\b/gi," ");
+  const kept=norm(s).split(" ").filter(w=>!/^\d+$/.test(w)).join(" ");
+  return kept||norm(s);
 }
 function isMaster(fn){ return /master/i.test(fn); }
 const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -156,6 +200,7 @@ async function takeFiles(files){
   if(!files.length){ alert("No audio files found."); return; }
   const slug=$("#band").value; const artist=$("#artist").value.trim(), project=$("#project").value.trim();
   if(!slug&&!(artist&&project)){ alert("Pick a band, or type the artist and project names."); return; }
+  if(!slug&&!bandCheck()){ $("#bandWarn").scrollIntoView({behavior:"smooth"}); return; }
   S.slug=slug||slugify(artist+" "+project);
   // load existing page
   const {text,sha}=await ghGetText(S.slug+"/index.html");
@@ -189,10 +234,19 @@ function renderRows(){
     const date=document.createElement("input"); date.type="date"; date.value=r.date.toISOString().slice(0,10); date.onchange=()=>{ r.date=new Date(date.value+"T12:00:00"); };
     const td=(k)=>{const c=document.createElement("td");c.append(k);return c;};
     const pill=document.createElement("span"); pill.className="pill"+(t?"":" new"); pill.textContent=t?"adds "+v.label:"new, "+v.label;
-    tr.append(td(r.file.name+" ("+(r.file.size/1048576).toFixed(0)+" MB)"),td(sel),td(name),td(Object.assign(document.createElement("div"),{})),td(date));
+    name.spellcheck=true; name.lang="en-GB"; name.oninput=()=>{ r.name=name.value; r.okd=false; clearTimeout(r._t); r._t=setTimeout(renderRows,900); };
+    const f=checkRow(r); const fl=document.createElement("div"); fl.className="flag"+(f?"":" okk");
+    const dn=fileDateNote(r);
+    if(f){ fl.append(f.msg); const b=document.createElement("div"); b.style.display="flex"; b.style.gap="6px"; b.style.flexWrap="wrap";
+      if(f.use){ const u=document.createElement("button"); u.className="btn"; u.textContent="Use "+f.use; u.onclick=()=>{ if(f.match){ r.trackId=f.match; } r.name=f.use; r.okd=true; renderRows(); }; b.append(u); }
+      const k=document.createElement("button"); k.className="btn"; k.textContent="Mine is right"; k.onclick=()=>{ r.okd=true; renderRows(); }; b.append(k); fl.append(b); }
+    else fl.append(r.trackId?"✓ existing track":"✓ looks fine");
+    if(dn){ const s=document.createElement("small"); s.style.color="var(--muted)"; s.textContent=dn; fl.append(s); }
+    tr.append(td(r.file.name+" ("+(r.file.size/1048576).toFixed(0)+" MB)"),td(sel),td(name),td(Object.assign(document.createElement("div"),{})),td(date),td(fl));
     tr.children[3].append(kind," ",pill);
     tb.append(tr);
   });
+  const open=S.rows.filter(r=>checkRow(r)).length; $("#spellSum").textContent=open?open+" name"+(open===1?"":"s")+" to check before building. Fix the spelling or tap Mine is right.":"All names checked."; $("#spellSum").className=open?"muted err":"muted ok"; $("#go").disabled=!!open;
 }
 $("#reset").onclick=()=>location.reload();
 
@@ -227,6 +281,7 @@ async function encodeMp3(ab,onProg){
 
 $("#go").onclick=async()=>{
   for(const r of S.rows){ if(!r.trackId&&!r.name.trim()){ alert("Every file needs a track name."); return; } }
+  if(S.rows.some(r=>checkRow(r))){ alert("Some names still need checking."); return; }
   $("#go").disabled=true; $("#workCard").hidden=false; $("#workCard").scrollIntoView({behavior:"smooth"});
   try{
     const seed=S.seed, slug=S.slug, isNew=!S.page;
@@ -266,5 +321,6 @@ $("#go").onclick=async()=>{
 };
 $("#copyMsg").onclick=async()=>{ try{ await navigator.clipboard.writeText($("#msg").value); $("#copyMsg").textContent="Copied"; }catch{ $("#msg").select(); } };
 $("#again").onclick=()=>location.reload();
+$("#artist").addEventListener("input",()=>{S.bandOk=false; clearTimeout(S._bt); S._bt=setTimeout(bandCheck,900);});
 </script>
 </body></html>
