@@ -67,6 +67,11 @@ textarea{font:inherit;color:inherit;background:#000;border:1px solid var(--line)
     <p class="muted">Names go on the page exactly as typed. Check capitals and spelling before you drop files. Picking an existing page ignores the new fields.</p>
   </section>
 
+  <section class="card gold" id="driveCard">
+    <h2>Save WAVs to Drive</h2>
+    <p class="muted" id="driveMsg">Pick your <b>My Drive › Black Cactus Recording Sessions</b> folder once. Every drop then copies the full-quality WAVs into ARTIST - PROJECT / NN - TRACK and Google Drive syncs them. Chrome on the Mac only.</p>
+    <div class="row"><button class="btn" id="pickDrive" type="button">Pick the Drive folder</button></div>
+  </section>
   <section class="card" id="dropCard" hidden>
     <h2>2. Drop the WAVs</h2>
     <div class="drop" id="drop"><b>Drag WAVs here</b>or tap to choose. One file per track, any file names. Put MASTER in the name for a master.</div>
@@ -92,7 +97,8 @@ textarea{font:inherit;color:inherit;background:#000;border:1px solid var(--line)
     <p class="muted">GitHub takes about a minute to publish. Open the link, play a track, then send this to the band:</p>
     <textarea id="msg" readonly></textarea>
     <div class="row"><button class="btn primary" id="copyMsg">Copy message</button><button class="btn" id="again">Upload more</button></div>
-    <p class="muted">Still to do on the Session Board: log hours, charges and payments for this project. File the WAVs in Drive under ARTIST - PROJECT / NN - TRACK.</p>
+    <p class="muted" id="doneDrive"></p>
+    <p class="muted">The Session Board picks this drop up within the hour (tracks, session notes, Drive link). Log hours, charges and payments there as usual.</p>
   </section>
 </div>
 
@@ -131,6 +137,58 @@ async function checkToken(){
   catch(e){ m.textContent="Token didn't work: "+e.message; m.className="muted err"; }
 }
 function fillBands(){ const s=$("#band"); s.replaceChildren(new Option("New band (type below)","")); for(const p of S.projects) s.append(new Option(p.artist+" · "+p.title,p.slug)); }
+
+/* ---------- Drive folder (File System Access) ---------- */
+const ROOTNAME="Black Cactus Recording Sessions";
+function idb(){ return new Promise((res,rej)=>{ const r=indexedDB.open("bc-drop",1); r.onupgradeneeded=()=>r.result.createObjectStore("kv"); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); }
+async function kvGet(k){ try{ const d=await idb(); return await new Promise(r=>{ const q=d.transaction("kv").objectStore("kv").get(k); q.onsuccess=()=>r(q.result); q.onerror=()=>r(null); }); }catch{ return null; } }
+async function kvSet(k,v){ try{ const d=await idb(); d.transaction("kv","readwrite").objectStore("kv").put(v,k); }catch{} }
+S.dir=null;
+function driveSay(t,cls){ const m=$("#driveMsg"); m.textContent=t; m.className="muted "+(cls||""); }
+async function driveReady(ask){
+  if(!S.dir) return false;
+  let p=await S.dir.queryPermission({mode:"readwrite"}); if(p!=="granted"&&ask) p=await S.dir.requestPermission({mode:"readwrite"});
+  return p==="granted";
+}
+(async()=>{
+  if(!window.showDirectoryPicker){ driveSay("This browser can't save to your Drive folder. Use Chrome on the studio Mac to get WAVs filed automatically. MP3s and the page still work here.","err"); $("#pickDrive").hidden=true; return; }
+  const h=await kvGet("root"); if(h){ S.dir=h; const ok=await driveReady(false); driveSay(ok?"WAVs will be saved to "+h.name+".":"WAVs will be saved to "+h.name+". Chrome will ask to allow it when you build.", "ok"); $("#pickDrive").textContent="Change folder"; }
+})();
+$("#pickDrive").onclick=async()=>{
+  try{ const h=await window.showDirectoryPicker({id:"bc-sessions",mode:"readwrite"});
+    if(h.name!==ROOTNAME){ driveSay("That folder is "+h.name+". Pick the one called "+ROOTNAME+" (in My Drive).","err"); return; }
+    S.dir=h; await kvSet("root",h); driveSay("WAVs will be saved to "+h.name+".","ok"); $("#pickDrive").textContent="Change folder";
+  }catch(e){ if(e.name!=="AbortError") driveSay("Couldn't use that folder: "+e.message,"err"); }
+};
+const fsSafe=s=>String(s).replace(/[\/:*?"<>|]+/g," & ").replace(/\s+/g," ").replace(/( & )+/g," & ").trim();
+async function subdirs(d){ const out=[]; for await (const [n,h] of d.entries()) if(h.kind==="directory") out.push(n); return out; }
+async function projectDir(meta,isNew){
+  const names=await subdirs(S.dir); const A=norm(meta.artist), T=norm(meta.title);
+  const cands=names.filter(n=>!n.startsWith("_")&&(norm(n)===A||norm(n).startsWith(A+" ")));
+  let pick=cands.find(n=>norm(n).includes(T))||(!isNew&&cands.length===1?cands[0]:null);
+  const name=pick||fsSafe(meta.artist+" - "+meta.title);
+  return {name,handle:await S.dir.getDirectoryHandle(name,{create:true})};
+}
+async function trackDir(pd,track){
+  const nn=String(track.number).padStart(2,"0"); const names=await subdirs(pd);
+  const hit=names.find(n=>n.startsWith(nn+" "))||names.find(n=>norm(n).endsWith(norm(track.name)));
+  const name=hit||fsSafe(nn+" - "+track.name);
+  return {name,handle:await pd.getDirectoryHandle(name,{create:true})};
+}
+async function exists(d,n){ try{ await d.getFileHandle(n); return true; }catch{ return false; } }
+async function saveWav(pd,track,r,v){
+  const td=await trackDir(pd.handle,track);
+  const ext=(r.file.name.match(/\.[^.]+$/)||[".wav"])[0].toLowerCase();
+  let fn=fsSafe(track.name)+"_"+(r.master?"Master":"Mix")+"_v"+v.id.slice(1)+"_"+yymmdd(r.date)+ext;
+  if(await exists(td.handle,fn)) fn=fn.replace(ext,"_b"+Date.now()%10000+ext);
+  const fh=await td.handle.getFileHandle(fn,{create:true}); const w=await fh.createWritable(); await w.write(r.file); await w.close();
+  return pd.name+"/"+td.name+"/"+fn;
+}
+async function writeLog(entry){
+  const d=await (await S.dir.getDirectoryHandle("_DROP",{create:true})).getDirectoryHandle("_LOG",{create:true});
+  const fn=new Date().toISOString().replace(/[:.]/g,"-")+"-"+entry.slug+".json";
+  const fh=await d.getFileHandle(fn,{create:true}); const w=await fh.createWritable(); await w.write(JSON.stringify(entry,null,1)); await w.close(); return fn;
+}
 
 /* ---------- spell check ---------- */
 S.known={tracks:new Map(),artists:new Map()}; // norm -> display
@@ -285,6 +343,9 @@ $("#go").onclick=async()=>{
   $("#go").disabled=true; $("#workCard").hidden=false; $("#workCard").scrollIntoView({behavior:"smooth"});
   try{
     const seed=S.seed, slug=S.slug, isNew=!S.page;
+    let pd=null, saved=[];
+    if(S.dir){ if(await driveReady(true)){ pd=await projectDir(seed.meta,isNew); log("Saving WAVs to Drive: "+pd.name); } else log("Drive folder not allowed, WAVs not saved. MP3s and page carry on.","err"); }
+    else log("No Drive folder picked, WAVs not saved (pick it at the top next time).");
     let tpl=S.page;
     if(isNew){ log("New page. Fetching template…"); tpl=(await ghGetText("_template/index.html")).text; if(!tpl) throw new Error("_template/index.html missing in repo"); }
     const total=S.rows.length;
@@ -304,6 +365,8 @@ $("#go").onclick=async()=>{
       const sha=await ghSha(slug+"/"+fname);
       await ghPut(slug+"/"+fname,await mp3.arrayBuffer(),sha,"Mix Room: "+slug+" "+track.name+" "+v.label);
       track.versions.push({id:v.id,label:v.label,order:v.order,file:fname,date:nice(r.date),bounced:yymmdd(r.date),duration:Math.round(ab.duration*10)/10,peaks});
+      let wavPath=null; if(pd){ try{ log("  Saving WAV to Drive…"); wavPath=await saveWav(pd,track,r,v); log("  Saved "+wavPath); }catch(e){ log("  WAV not saved: "+e.message,"err"); } }
+      saved.push({trackId:track.id,number:track.number,name:track.name,stage:track.stage,version:v.id,label:v.label,bounced:yymmdd(r.date),date:nice(r.date),master:!!r.master,wav:wavPath,newTrack:!r.trackId});
       prog((i+1)/total*0.95);
     }
     seed.tracks.sort((a,b)=>a.number-b.number);
@@ -313,6 +376,8 @@ $("#go").onclick=async()=>{
     log("Writing page…");
     await ghPut(slug+"/index.html",page,S.sha,"Mix Room: "+slug+" page");
     if(!S.projects.some(p=>p.slug===slug)){ S.projects.push({slug,artist:seed.meta.artist,title:seed.meta.title}); const psha=await ghSha("projects.json"); await ghPut("projects.json",JSON.stringify(S.projects,null,1),psha,"Mix Room: projects index"); }
+    if(pd){ try{ const lf=await writeLog({slug,artist:seed.meta.artist,title:seed.meta.title,isNew,folder:pd.name,clientUrl:SITE+slug+"/",at:new Date().toISOString(),tracks:saved}); log("Session Board note left: "+lf); }catch(e){ log("Board note not saved: "+e.message,"err"); } }
+    $("#doneDrive").textContent=pd?("WAVs saved to "+ROOTNAME+" / "+pd.name+". Google Drive syncs them in the background."):"WAVs were not saved to Drive this time.";
     prog(1); log("Done.","ok");
     const link=SITE+slug+"/"; $("#pageLink").href=link; $("#pageLink").textContent=link;
     $("#msg").value="Your mixes are ready to listen to 🎵\n\n"+link+"\n\nHit play, and if you hear anything you want changed, click that spot on the waveform and tell us what you're hearing. You'll see what the rest of the band has already said, so if you're thinking the same thing just tap Agree (or Disagree and say why). When you're done, press \"Send notes to the studio\", then Submit on the form that opens (or send them on WhatsApp if that's easier).\n\nAny questions, give me a shout on 07880 354 653.\nAJ, Black Cactus Studio";
